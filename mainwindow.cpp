@@ -20,7 +20,6 @@ MainWindow::MainWindow(QWidget *parent)
 
 {
     ui->setupUi(this);
-
     setWindowTitle("Merguez");
 
     ui->ToolBar->setContextMenuPolicy(Qt::PreventContextMenu);
@@ -69,11 +68,24 @@ MainWindow::MainWindow(QWidget *parent)
     u7->setChannel(defaultChannel2);
 
     ui->treeView->expandAll();
+
+    //Chat
+    connect(textChatHandler,SIGNAL(messageReceived(QString)),ui->ChatHistory1,SLOT(append(QString)));
+    connect(ui->ChatInput, SIGNAL(returnPressed()),this,SLOT(chatInput_onReturnPressed()));
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::chatInput_onReturnPressed()
+{
+    QByteArray message = (m_client->name() +":" + ui->ChatInput->text() +"\n").toUtf8();
+//    QString messageAEnvoyer = m_client->name() +":" + ui->ChatInput->text() +"\n";
+    qDebug() << "Sending message : " << message;
+    textChatHandler->sendMessage(message);
+
 }
 
 void MainWindow::treeView_onDoubleClick(const QModelIndex & index)

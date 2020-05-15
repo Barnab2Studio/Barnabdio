@@ -10,6 +10,10 @@ class TextChatHandler : public QWidget
      Q_OBJECT
 public:
     TextChatHandler();
+    void sendMessage(QByteArray message);
+
+signals:
+    void messageReceived(QString message);
 
 private slots:
      void errorSocket(QAbstractSocket::SocketError erreur);

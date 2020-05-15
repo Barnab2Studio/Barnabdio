@@ -20,6 +20,13 @@ TextChatHandler::TextChatHandler()
 
 }
 
+void TextChatHandler::sendMessage(QByteArray message){
+    QByteArray packet;
+    QDataStream out(&packet, QIODevice::WriteOnly);
+    out.writeRawData(message,message.length());
+    socket->write(packet);
+}
+
 void TextChatHandler::connected()
 {
     qDebug() <<"Connected to server";
@@ -37,7 +44,9 @@ void TextChatHandler::connected()
 
 void TextChatHandler::dataReceived()
 {
-    qDebug() <<"Data: " << socket->readAll();
+    QString message = QString::fromUtf8(socket->readAll());
+    qDebug() <<"Data: " << message;
+    emit messageReceived(message);
 }
 
 void TextChatHandler::errorSocket(QAbstractSocket::SocketError erreur)

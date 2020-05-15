@@ -21,6 +21,8 @@ public:
 
 public slots:
     void treeView_onDoubleClick(const QModelIndex & index);
+    void chatInput_onReturnPressed();
+//    void chatHistory_onMessageReceived(const QString message);
 
 private:
     Ui::MainWindow * ui;
