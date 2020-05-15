@@ -10,6 +10,7 @@ QT_END_NAMESPACE
 class User;
 class ChannelListModel;
 class VolumeListLayout;
+class TextChatHandler;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -25,7 +26,7 @@ private:
     Ui::MainWindow * ui;
     ChannelListModel * model;
     VolumeListLayout * m_volumeListLayout;
-
+    TextChatHandler * textChatHandler;
     User * m_client;
 };
 #endif // MAINWINDOW_H

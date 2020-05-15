@@ -8,12 +8,16 @@
 #include "channellistitem.h"
 #include "channellistmodel.h"
 
+#include "textchathandler.h"
+
 #include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , textChatHandler(new TextChatHandler())
     , m_client(new User(0, "Fragi"))
+
 {
     ui->setupUi(this);
 
