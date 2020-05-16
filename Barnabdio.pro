@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -22,6 +22,7 @@ SOURCES += \
 #    ChannelListPanel.cpp \
     MainWindow.cpp \
     User.cpp \
+    textchathandler.cpp \
 #    UserList.cpp \
 #    UserVolumeController.cpp \
 #    UserVolumePanel.cpp \
@@ -29,10 +30,12 @@ SOURCES += \
     channel.cpp \
     channellistitem.cpp \
     channellistmodel.cpp \
+    connectiondialog.cpp \
     main.cpp \
     framelesswindow/framelesswindow.cpp \
     framelesswindow/windowdragger.cpp \
     DarkStyle.cpp \
+    tcpclient.cpp \
     volumelayout.cpp \
     volumelistlayout.cpp
 
@@ -43,6 +46,7 @@ HEADERS += \
 #    ChannelListPanel.h \
     MainWindow.h \
     User.h \
+    textchathandler.h \
 #    UserList.h \
 #    UserVolumeController.h \
 #    UserVolumePanel.h \
@@ -50,6 +54,8 @@ HEADERS += \
     channel.h \
     channellistitem.h \
     channellistmodel.h \
+    connectiondialog.h \
+    tcpclient.h \
     volumelayout.h \
     volumelistlayout.h
 HEADERS     += framelesswindow/framelesswindow.h \
@@ -57,6 +63,7 @@ HEADERS     += framelesswindow/framelesswindow.h \
                DarkStyle.h
 
 FORMS += \
+    connectiondialog.ui \
     framelesswindow/framelesswindow.ui \
     mainwindow.ui
     framelesswindow/framelesswindow.ui

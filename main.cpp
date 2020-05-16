@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
       framelessWindow.setWindowIcon(a.style()->standardIcon(QStyle::SP_DesktopIcon));
 
       // create our mainwindow instance
-      MainWindow *mainWindow = new MainWindow();
+      MainWindow * mainWindow = new MainWindow(&framelessWindow);
 
       // add the mainwindow to our custom frameless window
       framelessWindow.setContent(mainWindow);

@@ -26,7 +26,8 @@ FramelessWindow::FramelessWindow(QWidget *parent)
       m_bDragTop(false),
       m_bDragLeft(false),
       m_bDragRight(false),
-      m_bDragBottom(false) {
+      m_bDragBottom(false),
+      m_resizable(true) {
   setWindowFlags(Qt::FramelessWindowHint | Qt::WindowSystemMenuHint);
   // append minimize button flag in case of windows,
   // for correct windows native handling of minimize function
@@ -109,6 +110,14 @@ void FramelessWindow::setWindowTitle(const QString &text) {
 
 void FramelessWindow::setWindowIcon(const QIcon &ico) {
   ui->icon->setPixmap(ico.pixmap(16, 16));
+}
+
+void FramelessWindow::setResizable(bool resizable)
+{
+  m_resizable = resizable;
+  ui->maximizeButton->setVisible(m_resizable);
+  ui->restoreButton->setVisible(m_resizable);
+  ui->minimizeButton->setVisible(m_resizable);
 }
 
 void FramelessWindow::styleWindow(bool bActive, bool bNoState) {
@@ -198,6 +207,8 @@ void FramelessWindow::on_minimizeButton_clicked() {
 void FramelessWindow::on_closeButton_clicked() { close(); }
 
 void FramelessWindow::on_windowTitlebar_doubleClicked() {
+  return;
+
   if (windowState().testFlag(Qt::WindowNoState)) {
     on_maximizeButton_clicked();
   } else if (windowState().testFlag(Qt::WindowFullScreen)) {
@@ -342,6 +353,9 @@ bool FramelessWindow::leftBorderHit(const QPoint &pos) {
 }
 
 bool FramelessWindow::rightBorderHit(const QPoint &pos) {
+  if (!m_resizable)
+    return false;
+
   const QRect &rect = this->geometry();
   int tmp = rect.x() + rect.width();
   if (pos.x() <= tmp && pos.x() >= (tmp - CONST_DRAG_BORDER_SIZE)) {
@@ -356,6 +370,9 @@ bool FramelessWindow::topBorderHit(const QPoint &pos) {
 }
 
 bool FramelessWindow::bottomBorderHit(const QPoint &pos) {
+  if (!m_resizable)
+    return false;
+
   const QRect &rect = this->geometry();
   int tmp = rect.y() + rect.height();
   if (pos.y() <= tmp && pos.y() >= (tmp - CONST_DRAG_BORDER_SIZE)) {

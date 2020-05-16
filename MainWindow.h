@@ -8,6 +8,8 @@ namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
 class User;
+class TCPClient;
+class ConnectionDialog;
 class ChannelListModel;
 class VolumeListLayout;
 class TextChatHandler;
@@ -24,11 +26,23 @@ public slots:
     void chatInput_onReturnPressed();
 //    void chatHistory_onMessageReceived(const QString message);
 
+private slots:
+    void on_actionConnect_triggered();
+
 private:
+    void initTreeView();
+    void initConnectionDialog();
+
     Ui::MainWindow * ui;
-    ChannelListModel * model;
+    ChannelListModel * m_channelList;
     VolumeListLayout * m_volumeListLayout;
     TextChatHandler * textChatHandler;
+
+
+    ConnectionDialog * m_connectionDialog;
+    TCPClient * m_tcpclient;
+
+
     User * m_client;
 };
 #endif // MAINWINDOW_H
