@@ -29,10 +29,12 @@ SOURCES += \
     channel.cpp \
     channellistitem.cpp \
     channellistmodel.cpp \
+    connectiondialog.cpp \
     main.cpp \
     framelesswindow/framelesswindow.cpp \
     framelesswindow/windowdragger.cpp \
     DarkStyle.cpp \
+    tcpclient.cpp \
     volumelayout.cpp \
     volumelistlayout.cpp
 
@@ -50,6 +52,8 @@ HEADERS += \
     channel.h \
     channellistitem.h \
     channellistmodel.h \
+    connectiondialog.h \
+    tcpclient.h \
     volumelayout.h \
     volumelistlayout.h
 HEADERS     += framelesswindow/framelesswindow.h \
@@ -57,6 +61,7 @@ HEADERS     += framelesswindow/framelesswindow.h \
                DarkStyle.h
 
 FORMS += \
+    connectiondialog.ui \
     framelesswindow/framelesswindow.ui \
     mainwindow.ui
     framelesswindow/framelesswindow.ui
