@@ -1,17 +1,20 @@
-#include "mainwindow.h"
+#include "MainWindow.h"
 #include "ui_mainwindow.h"
 
 #include "volumelistlayout.h"
 
-#include "user.h"
+#include "User.h"
 #include "channel.h"
 #include "channellistitem.h"
 #include "channellistmodel.h"
+
+
 
 #include "connectiondialog.h"
 #include "framelesswindow.h"
 
 #include "tcpclient.h"
+
 
 #include <QDebug>
 
@@ -23,10 +26,12 @@ MainWindow::MainWindow(QWidget *parent)
     , m_connectionDialog(nullptr)
     , m_tcpclient(new TCPClient(this))
     , m_client(new User(0, "Fragi"))
+
 {
     ui->setupUi(this);
 
     initTreeView();
+
     ui->ToolBar->setContextMenuPolicy(Qt::PreventContextMenu);
     ui->scrollAreaWidgetContents->setLayout(m_volumeListLayout);
 
@@ -67,11 +72,26 @@ MainWindow::MainWindow(QWidget *parent)
     /*
      *  End placeholder
      */
+
+
+    //Chat
+    connect(m_tcpclient, SIGNAL(chatMessageRecieved(QString)), ui->ChatHistory1,SLOT(append(QString)));
+
+    connect(ui->ChatInput, SIGNAL(returnPressed()),this,SLOT(chatInput_onReturnPressed()));
+
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+
+void MainWindow::chatInput_onReturnPressed()
+{
+    QByteArray message = (m_client->name() +":" + ui->ChatInput->text() +"\n").toUtf8();
+    qDebug() << "Sending message : " << QString::fromUtf8(message);
+    m_tcpclient->sendChatMessage(message);
 }
 
 void MainWindow::initTreeView()
@@ -95,6 +115,7 @@ void MainWindow::initConnectionDialog()
 
     connect(m_connectionDialog, SIGNAL(connectionRequested(QString const &, QString const &, QString const &, QString const &)),
             m_tcpclient,      SLOT(connect(QString const &, QString const &, QString const &, QString const &)));
+
 
 }
 
