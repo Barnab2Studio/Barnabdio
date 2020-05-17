@@ -26,11 +26,10 @@ void TCPClient::connect(QString const & server, QString const & port, QString co
     qDebug() <<"Connected to server";
     QByteArray paquet;
     QDataStream out(&paquet, QIODevice::WriteOnly);
-    qDebug() << "peusdo : " << name.toUtf8();
 
-    QByteArray pseudo = (name + "\n").toUtf8();
+    QByteArray authMessage = (password +";" + name).toUtf8();
 
-    out.writeRawData(pseudo,pseudo.length());
+    out.writeRawData(authMessage,authMessage.length());
 
     socket->write(paquet);
 }

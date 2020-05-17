@@ -89,7 +89,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::chatInput_onReturnPressed()
 {
-    QByteArray message = (m_client->name() +":" + ui->ChatInput->text() +"\n").toUtf8();
+    QByteArray message = ("0;"+m_client->name() +":" + ui->ChatInput->text() +"\n").toUtf8();
     qDebug() << "Sending message : " << QString::fromUtf8(message);
     m_tcpclient->sendChatMessage(message);
 }
