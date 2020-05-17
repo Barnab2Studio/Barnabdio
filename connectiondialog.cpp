@@ -13,8 +13,20 @@ ConnectionDialog::ConnectionDialog(QWidget * parent) :
     connect(ui->ConnectButton, SIGNAL(pressed()),
             this,              SLOT(on_ConnectButton_pressed()));
 
-    connect(ui->CancelButton, SIGNAL(pressed()),
-            this,             SLOT(on_CancelButton_pressed()));
+    connect(ui->CancelButton,  SIGNAL(pressed()),
+            this,              SLOT(on_CancelButton_pressed()));
+
+    connect(ui->ServerInput,   SIGNAL(returnPressed()),
+            this,              SLOT(on_ConnectButton_pressed()));
+
+    connect(ui->PortInput,     SIGNAL(returnPressed()),
+            this,              SLOT(on_ConnectButton_pressed()));
+
+    connect(ui->PasswordInput, SIGNAL(returnPressed()),
+            this,              SLOT(on_ConnectButton_pressed()));
+
+    connect(ui->NameInput,     SIGNAL(returnPressed()),
+            this,              SLOT(on_ConnectButton_pressed()));
 
     this->setWindowTitle("Connection");
     this->setContent(connectionDialog);
@@ -42,6 +54,7 @@ void ConnectionDialog::on_CancelButton_pressed()
 
 void ConnectionDialog::show()
 {
+    ui->ServerInput->setFocus();
     move(parentWidget()->rect().center() - this->rect().center());
     FramelessWindow::show();
 }
