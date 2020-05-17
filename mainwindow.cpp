@@ -1,4 +1,4 @@
-#include "Mainwindow.h"
+#include "MainWindow.h"
 #include "ui_mainwindow.h"
 
 #include "volumelistlayout.h"
@@ -9,7 +9,6 @@
 #include "channellistmodel.h"
 
 
-#include "textchathandler.h"
 
 #include "connectiondialog.h"
 #include "framelesswindow.h"
@@ -24,7 +23,6 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
     , m_channelList(new ChannelListModel(this))
     , m_volumeListLayout(new VolumeListLayout())
-    , textChatHandler(new TextChatHandler())
     , m_connectionDialog(nullptr)
     , m_tcpclient(new TCPClient(this))
     , m_client(new User(0, "Fragi"))
@@ -81,7 +79,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     //Chat
-    connect(textChatHandler,SIGNAL(messageReceived(QString)),ui->ChatHistory1,SLOT(append(QString)));
+    connect(m_tcpclient, SIGNAL(chatMessageRecieved(QString)), ui->ChatHistory1,SLOT(append(QString)));
+
     connect(ui->ChatInput, SIGNAL(returnPressed()),this,SLOT(chatInput_onReturnPressed()));
 
 }
@@ -95,9 +94,8 @@ MainWindow::~MainWindow()
 void MainWindow::chatInput_onReturnPressed()
 {
     QByteArray message = (m_client->name() +":" + ui->ChatInput->text() +"\n").toUtf8();
-//    QString messageAEnvoyer = m_client->name() +":" + ui->ChatInput->text() +"\n";
     qDebug() << "Sending message : " << QString::fromUtf8(message);
-    textChatHandler->sendMessage(message);
+    m_tcpclient->sendChatMessage(message);
 }
 
 void MainWindow::initTreeView()

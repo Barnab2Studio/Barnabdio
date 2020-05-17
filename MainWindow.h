@@ -12,7 +12,6 @@ class TCPClient;
 class ConnectionDialog;
 class ChannelListModel;
 class VolumeListLayout;
-class TextChatHandler;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -36,7 +35,6 @@ private:
     Ui::MainWindow * ui;
     ChannelListModel * m_channelList;
     VolumeListLayout * m_volumeListLayout;
-    TextChatHandler * textChatHandler;
 
 
     ConnectionDialog * m_connectionDialog;

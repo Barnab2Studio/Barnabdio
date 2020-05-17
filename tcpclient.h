@@ -2,6 +2,8 @@
 #define TCPCLIENT_H
 
 #include <QObject>
+#include <QtNetwork>
+#include <QtWidgets>
 
 class TCPClient : public QObject
 {
@@ -13,6 +15,9 @@ public:
 public slots:
     void connect(QString const & server, QString const & port, QString const & password, QString const & name);
 
+
+    void dataReceived(); //Handle packet reception and then emit signal accordingly to packet content
+
     void sendChatMessage(QString const & message); // in the future, we will specify for which channel we must send the message
 
     void notifyClientNameChanged(QString const & name);
@@ -21,6 +26,8 @@ public slots:
     void notifyChannelCreated(int id, QString const & name);
     void notifyChannelDeleted(int id);
     void notifyChannelRenamed(int id, QString const & name);
+
+//    void errorSocket(QAbstractSocket::SocketError erreur);
 
 signals:
     void chatMessageRecieved(QString const & message);
@@ -35,7 +42,7 @@ signals:
     void channelRenamed(int id, QString const & name);
 
 private:
-
+    QTcpSocket *socket;
 };
 
 #endif // TCPCLIENT_H

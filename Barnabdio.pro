@@ -22,7 +22,6 @@ SOURCES += \
 #    ChannelListPanel.cpp \
     MainWindow.cpp \
     User.cpp \
-    textchathandler.cpp \
 #    UserList.cpp \
 #    UserVolumeController.cpp \
 #    UserVolumePanel.cpp \
@@ -46,7 +45,6 @@ HEADERS += \
 #    ChannelListPanel.h \
     MainWindow.h \
     User.h \
-    textchathandler.h \
 #    UserList.h \
 #    UserVolumeController.h \
 #    UserVolumePanel.h \
