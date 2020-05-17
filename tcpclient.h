@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include <QtNetwork>
-#include <QtWidgets>
 
 class TCPClient : public QObject
 {
@@ -26,8 +25,6 @@ public slots:
     void notifyChannelCreated(int id, QString const & name);
     void notifyChannelDeleted(int id);
     void notifyChannelRenamed(int id, QString const & name);
-
-//    void errorSocket(QAbstractSocket::SocketError erreur);
 
 signals:
     void chatMessageRecieved(QString const & message);

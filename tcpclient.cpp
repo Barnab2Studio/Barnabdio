@@ -44,12 +44,12 @@ void TCPClient::sendChatMessage(QString const & message)
     socket->write(packet);
 }
 
-void TCPClient::dataReceived()//
+void TCPClient::dataReceived()
 {
     // In the future, should dispatch message handling accordingly to message type (server info, chat, ect...)
-    QByteArray incomingDate = socket->readAll();
-    qDebug() <<"Data received: " << QString::fromUtf8(incomingDate);
-    emit chatMessageRecieved(QString::fromUtf8(incomingDate));
+    QByteArray incomingData = socket->readAll();
+    qDebug() <<"Data received: " << QString::fromUtf8(incomingData);
+    emit chatMessageRecieved(QString::fromUtf8(incomingData));
 }
 
 

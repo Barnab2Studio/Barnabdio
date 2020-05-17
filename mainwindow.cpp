@@ -30,10 +30,6 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    setWindowTitle("Merguez");
-
-
-
     initTreeView();
 
     ui->ToolBar->setContextMenuPolicy(Qt::PreventContextMenu);
