@@ -138,8 +138,8 @@ void MainWindow::treeView_onDoubleClick(const QModelIndex & index)
             return;
         }
 
-        client->setChannel(channel);
-        m_tcpclient->notifyClientChannelChanged(channel->id(), client->id());
+        if (client->setChannel(channel))
+            m_tcpclient->notifyClientChannelChanged(channel->id(), client->id());
         ui->treeView->setExpanded(index, false);
     }
 }

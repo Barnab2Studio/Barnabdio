@@ -208,8 +208,8 @@ bool ChannelListModel::dropMimeData(const QMimeData * data, Qt::DropAction actio
     Channel * parentSource = getChannelFromId(id & 0xffff);
     User * source = parentSource->getUserFromId(id >> 16);
 
-    source->setChannel(item);
-    emit userChannelChanged(item->id(), source->id());
+    if (source->setChannel(item))
+        emit userChannelChanged(item->id(), source->id());
 
     return true;
 }

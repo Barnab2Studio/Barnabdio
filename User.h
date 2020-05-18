@@ -29,7 +29,7 @@ public:
     explicit User(int id, QString const & name, ChannelListItem * parent = nullptr);
     virtual ~User();
 
-    void setChannel(Channel * channel);
+    bool setChannel(Channel * channel);
 
     int volume() const;
 

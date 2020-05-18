@@ -14,10 +14,10 @@ User::~User()
 {
 }
 
-void User::setChannel(Channel * channel)
+bool User::setChannel(Channel * channel)
 {
     if (channel == m_parent)
-        return;
+        return false;
 
     Channel * currentChannel = qobject_cast<Channel *>(m_parent);
 
@@ -30,6 +30,7 @@ void User::setChannel(Channel * channel)
         channel->addUser(this);
 
     emit channelChanged(channel);
+    return true;
 }
 
 int User::volume() const
