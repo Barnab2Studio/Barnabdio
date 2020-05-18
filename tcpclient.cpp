@@ -103,7 +103,7 @@ void TCPClient::notifyClientChannelChanged(int idChannel, int idUser)
     qDebug() << "notifyClientChannelChanged" << idChannel << idUser;
     QByteArray packet;
     QDataStream out(&packet, QIODevice::WriteOnly);
-    out.writeRawData(message,message.length());
+    out.writeRawData(message, message.length());
     socket->write(packet);
 }
 
@@ -207,6 +207,7 @@ void TCPClient::handleUserJoinedChannel(QStringList const & data)
         return;
     }
 
+    qDebug() << "handleUserJoinedChannel" << data[1].toInt() << data[2].toInt();
     emit userMoved(data[1].toInt(), data[2].toInt());
 }
 

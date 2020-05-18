@@ -74,11 +74,6 @@ void ChannelListModel::addUser(int userId, QString const & userName, int channel
 
     m_userList[userId] = new User(userId, userName);
     m_userList[userId]->setChannel(channel);
-
-    connect(
-        m_userList[userId], &User::channelChanged,
-        [=]( Channel * channel ) { emit userChannelChanged(channel->id(), userId); }
-    );
 }
 
 void ChannelListModel::removeUser(int id)
@@ -214,6 +209,7 @@ bool ChannelListModel::dropMimeData(const QMimeData * data, Qt::DropAction actio
     User * source = parentSource->getUserFromId(id >> 16);
 
     source->setChannel(item);
+    emit userChannelChanged(item->id(), source->id());
 
     return true;
 }
