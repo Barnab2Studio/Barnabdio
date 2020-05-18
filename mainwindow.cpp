@@ -18,6 +18,10 @@
 
 #include <QDebug>
 
+#include <QtMultimedia/QAudioDeviceInfo>
+#include <QtMultimedia/QAudioInput>
+#include <QtMultimedia/QAudioOutput>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -78,6 +82,25 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_tcpclient, SIGNAL(chatMessageRecieved(QString)), ui->ChatHistory1,SLOT(append(QString)));
 
     connect(ui->ChatInput, SIGNAL(returnPressed()),this,SLOT(chatInput_onReturnPressed()));
+
+
+
+
+    const QAudioDeviceInfo inputDeviceInfo = QAudioDeviceInfo::defaultInputDevice();
+    const QAudioDeviceInfo outputDeviceInfo = QAudioDeviceInfo::defaultOutputDevice();
+
+    QAudioFormat formatAudio;
+    formatAudio.setSampleRate(8000);
+    formatAudio.setChannelCount(1);
+    formatAudio.setSampleSize(16);
+    formatAudio.setCodec("audio/pcm");
+    formatAudio.setByteOrder(QAudioFormat::LittleEndian);
+    formatAudio.setSampleType(QAudioFormat::SignedInt);
+
+    m_audioInput = new QAudioInput(inputDeviceInfo, formatAudio, this);
+
+    QAudioOutput* audioOutput = new QAudioOutput(outputDeviceInfo,formatAudio,this);
+   m_audioInput->start(audioOutput->start());
 
 }
 
