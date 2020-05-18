@@ -23,6 +23,7 @@ TCPClient::TCPClient(QObject * parent)
         {UserList, &TCPClient::handleUserList},
         {GoodPassword, &TCPClient::handleGoodPassword},
         {WrongPassword, &TCPClient::handleWrongPassword},
+        {UserJoinedChannel, &TCPClient::handleUserJoinedChannel},
         {ChannelCreated, &TCPClient::handleChannelCreated},
         {ChannelDeleted, &TCPClient::handleChannelDeleted}
     };
@@ -96,9 +97,14 @@ void TCPClient::notifyClientNameChanged(QString const & name)
 
 }
 
-void TCPClient::notifyClientChannelChanged(int id)
+void TCPClient::notifyClientChannelChanged(int idChannel, int idUser)
 {
-
+    QByteArray message = (QString::number(UserJoinedChannel) + ";" + QString::number(idChannel) + ";" +  QString::number(idUser) + "\n").toUtf8();
+    qDebug() << "notifyClientChannelChanged" << idChannel << idUser;
+    QByteArray packet;
+    QDataStream out(&packet, QIODevice::WriteOnly);
+    out.writeRawData(message,message.length());
+    socket->write(packet);
 }
 
 
@@ -191,6 +197,17 @@ void TCPClient::handleWrongPassword(QStringList const & data)
 {
     emit chatMessageRecieved("Invalid password");
     emit chatMessageRecieved("Connection failed");
+}
+
+void TCPClient::handleUserJoinedChannel(QStringList const & data)
+{
+    if (data.size() != 3)
+    {
+        qDebug() << "Bad format for user joined channel";
+        return;
+    }
+
+    emit userMoved(data[1].toInt(), data[2].toInt());
 }
 
 void TCPClient::handleChannelCreated(QStringList const & data)

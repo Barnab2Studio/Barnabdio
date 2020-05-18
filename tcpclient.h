@@ -21,7 +21,7 @@ public slots:
     void sendChatMessage(QString const & message); // in the future, we will specify for which channel we must send the message
 
     void notifyClientNameChanged(QString const & name);
-    void notifyClientChannelChanged(int id);
+    void notifyClientChannelChanged(int idChannel, int idUser);
 
     void notifyChannelCreated(int id, QString const & name);
     void notifyChannelDeleted(int id);
@@ -32,7 +32,7 @@ signals:
 
     void userConnected(int id, QString const & name, int channel);
     void userDisconnected(int id);
-    void userMoved(int id, QString const & name);
+    void userMoved(int idChannel, int idUser);
     void userRenamed(int id, QString const & name);
 
     void channelCreated(int id, QString const & name);
@@ -55,6 +55,7 @@ private:
         UserList = 12,
         GoodPassword = 20,
         WrongPassword = -20,
+        UserJoinedChannel = 31,
         ChannelCreated = 42,
         ChannelDeleted = 43
     };
@@ -68,6 +69,7 @@ private:
     void handleChannelList(QStringList const & data);
     void handleUserList(QStringList const & data);
     void handleGoodPassword(QStringList const & data);
+    void handleUserJoinedChannel(QStringList const & data);
     void handleWrongPassword(QStringList const & data);
     void handleChannelCreated(QStringList const & data);
     void handleChannelDeleted(QStringList const & data);

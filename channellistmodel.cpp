@@ -74,6 +74,11 @@ void ChannelListModel::addUser(int userId, QString const & userName, int channel
 
     m_userList[userId] = new User(userId, userName);
     m_userList[userId]->setChannel(channel);
+
+    connect(
+        m_userList[userId], &User::channelChanged,
+        [=]( Channel * channel ) { emit userChannelChanged(channel->id(), userId); }
+    );
 }
 
 void ChannelListModel::removeUser(int id)
@@ -90,6 +95,17 @@ User * ChannelListModel::getUserFromId(int id) const
     if (m_userList.count(id) == 0)
         return nullptr;
     return m_userList[id];
+}
+
+void ChannelListModel::moveUser(int idChannel, int idUser)
+{
+    User * user = getUserFromId(idUser);
+    Channel * channel = getChannelFromId(idChannel);
+
+    if (!user || !channel)
+        return;
+
+    user->setChannel(channel);
 }
 
 void ChannelListModel::clear()

@@ -38,6 +38,12 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_tcpclient, SIGNAL(userConnected(int, QString const &, int)),
             m_channelList, SLOT(addUser(int, QString const &, int)));
 
+    connect(m_tcpclient, SIGNAL(userMoved(int, int)),
+            m_channelList, SLOT(moveUser(int, int)));
+
+    connect(m_channelList, SIGNAL(userChannelChanged(int, int)),
+            m_tcpclient,   SLOT(notifyClientChannelChanged(int, int)));
+
     connect(m_tcpclient, SIGNAL(initEnd()),
             this,        SLOT(finishConnectionInit()));
 

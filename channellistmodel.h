@@ -35,10 +35,13 @@ public slots:
     void addUser(int userId, QString const & userName, int channelId);
     void removeUser(int id);
     User * getUserFromId(int id) const;
+    void moveUser(int idChannel, int idUser);
 
     void clear();
     void displayIndexes() const;
 
+signals:
+    void userChannelChanged(int channelId, int userId);
 
 private:
     Channel * m_root;
