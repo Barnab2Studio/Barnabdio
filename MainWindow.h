@@ -12,6 +12,7 @@ class TCPClient;
 class ConnectionDialog;
 class ChannelListModel;
 class VolumeListLayout;
+class QAudioInput;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -40,6 +41,7 @@ private:
     ConnectionDialog * m_connectionDialog;
     TCPClient * m_tcpclient;
 
+    QAudioInput *m_audioInput = nullptr;
 
     User * m_client;
 };
