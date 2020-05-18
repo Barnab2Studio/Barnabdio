@@ -1,5 +1,7 @@
 #include "volumelistlayout.h"
 
+#include "globals.h"
+
 #include "volumelayout.h"
 #include "channel.h"
 #include "user.h"
@@ -20,13 +22,13 @@ VolumeListLayout::~VolumeListLayout()
 
 void VolumeListLayout::setChannel(Channel * channel)
 {
-    if (channel == nullptr)
-        return;
-
     if (m_channel != nullptr)
         disconnect(m_channel, nullptr, this, nullptr);
 
     m_channel = channel;
+
+    if (channel == nullptr)
+        return;
 
     connect(channel, SIGNAL(userRenamed(User *)),
             this,    SLOT(rename(User *)));
@@ -53,7 +55,7 @@ void VolumeListLayout::add(User * user)
     if (m_volumeLayouts.count(user->id()) != 0)
         return;
 
-    if (user->id() == 0)
+    if (user->id() == ClientID)
         return;
 
     VolumeLayout * volumeLayout = new VolumeLayout(user->name(), user->volume());

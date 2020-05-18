@@ -18,6 +18,7 @@ ChannelListModel::~ChannelListModel()
 {
     delete m_root;
     qDeleteAll(m_channelList);
+    qDeleteAll(m_userList);
 }
 
 Channel * ChannelListModel::addChannel(int id, QString const & name)
@@ -65,6 +66,49 @@ Channel * ChannelListModel::getChannelFromId(int id) const
     if (it != m_channelList.end())
         return m_channelList[it - m_channelList.begin()];
     return nullptr;
+}
+
+void ChannelListModel::addUser(int userId, QString const & userName, int channelId)
+{
+    Channel * channel = getChannelFromId(channelId);
+
+    m_userList[userId] = new User(userId, userName);
+    m_userList[userId]->setChannel(channel);
+}
+
+void ChannelListModel::removeUser(int id)
+{
+    if (m_userList.count(id) == 0)
+        return;
+
+    m_userList[id]->setChannel(nullptr);
+    delete m_userList[id];
+}
+
+User * ChannelListModel::getUserFromId(int id) const
+{
+    if (m_userList.count(id) == 0)
+        return nullptr;
+    return m_userList[id];
+}
+
+void ChannelListModel::clear()
+{
+    beginResetModel();
+    auto itChannel = m_channelList.begin();
+    while (itChannel != m_channelList.end())
+    {
+        delete *itChannel;
+        itChannel = m_channelList.erase(itChannel++);
+    }
+
+    auto itUser = m_channelList.begin();
+    while (itUser != m_channelList.end())
+    {
+        delete *itUser;
+        itUser = m_channelList.erase(itUser++);
+    }
+    endResetModel();
 }
 
 QVariant ChannelListModel::data(QModelIndex const & index, int role) const
@@ -216,6 +260,8 @@ int ChannelListModel::rowCount(QModelIndex const & parent) const
     {
         ChannelListItem * item;
         item = static_cast<ChannelListItem *>(parent.internalPointer());
+        if (item == nullptr)
+            qDebug() << "tchoiiiin";
         count = item->itemCount();
     }
     else
@@ -230,7 +276,7 @@ int ChannelListModel::columnCount(QModelIndex const & parent) const
     return 1;
 }
 
-void ChannelListModel::displayIndexes()
+void ChannelListModel::displayIndexes() const
 {
     for (int i = 0 ; i < rowCount() ; ++i)
     {

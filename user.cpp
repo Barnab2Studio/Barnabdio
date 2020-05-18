@@ -8,8 +8,6 @@ User::User(int id, QString const & name, ChannelListItem * parent)
     : ChannelListItem(id, name, parent)
     , m_volume(100)
 {
-    if (id == 3)
-        m_volume = 0;
 }
 
 User::~User()

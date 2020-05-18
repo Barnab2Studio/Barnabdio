@@ -24,9 +24,11 @@ public slots:
     void treeView_onDoubleClick(const QModelIndex & index);
     void chatInput_onReturnPressed();
 
-
 private slots:
     void on_actionConnect_triggered();
+
+    void finishConnectionInit();
+    void cleanup();
 
 private:
     void initTreeView();
@@ -36,11 +38,7 @@ private:
     ChannelListModel * m_channelList;
     VolumeListLayout * m_volumeListLayout;
 
-
     ConnectionDialog * m_connectionDialog;
     TCPClient * m_tcpclient;
-
-
-    User * m_client;
 };
 #endif // MAINWINDOW_H

@@ -30,6 +30,7 @@ SOURCES += \
     channellistitem.cpp \
     channellistmodel.cpp \
     connectiondialog.cpp \
+    globals.cpp \
     main.cpp \
     framelesswindow/framelesswindow.cpp \
     framelesswindow/windowdragger.cpp \
@@ -53,6 +54,7 @@ HEADERS += \
     channellistitem.h \
     channellistmodel.h \
     connectiondialog.h \
+    globals.h \
     tcpclient.h \
     volumelayout.h \
     volumelistlayout.h

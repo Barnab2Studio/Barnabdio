@@ -3,30 +3,32 @@
 
 #include <QIntValidator>
 
+#include <QDebug>
+
 ConnectionDialog::ConnectionDialog(QWidget * parent) :
     FramelessWindow(parent),
     ui(new Ui::ConnectionDialog)
 {
-    QDialog * connectionDialog = new QDialog(this);
+    QDialog * connectionDialog = new QDialog();
     ui->setupUi(connectionDialog);
 
     connect(ui->ConnectButton, SIGNAL(pressed()),
-            this,              SLOT(on_ConnectButton_pressed()));
+            this,              SLOT(onConnectButton_pressed()));
 
     connect(ui->CancelButton,  SIGNAL(pressed()),
-            this,              SLOT(on_CancelButton_pressed()));
+            this,              SLOT(onCancelButton_pressed()));
 
     connect(ui->ServerInput,   SIGNAL(returnPressed()),
-            this,              SLOT(on_ConnectButton_pressed()));
+            this,              SLOT(onConnectButton_pressed()));
 
     connect(ui->PortInput,     SIGNAL(returnPressed()),
-            this,              SLOT(on_ConnectButton_pressed()));
+            this,              SLOT(onConnectButton_pressed()));
 
     connect(ui->PasswordInput, SIGNAL(returnPressed()),
-            this,              SLOT(on_ConnectButton_pressed()));
+            this,              SLOT(onConnectButton_pressed()));
 
     connect(ui->NameInput,     SIGNAL(returnPressed()),
-            this,              SLOT(on_ConnectButton_pressed()));
+            this,              SLOT(onConnectButton_pressed()));
 
     this->setWindowTitle("Connection");
     this->setContent(connectionDialog);
@@ -41,13 +43,16 @@ ConnectionDialog::~ConnectionDialog()
     delete ui;
 }
 
-void ConnectionDialog::on_ConnectButton_pressed()
+void ConnectionDialog::onConnectButton_pressed()
 {
+    if (isHidden()) // dirty fix for a bug where this slot would be called twice
+        return;
+
     emit connectionRequested(ui->ServerInput->text(), ui->PortInput->text(), ui->PasswordInput->text(), ui->NameInput->text());
     hide();
 }
 
-void ConnectionDialog::on_CancelButton_pressed()
+void ConnectionDialog::onCancelButton_pressed()
 {
     hide();
 }

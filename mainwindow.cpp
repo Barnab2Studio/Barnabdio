@@ -8,13 +8,12 @@
 #include "channellistitem.h"
 #include "channellistmodel.h"
 
-
-
 #include "connectiondialog.h"
 #include "framelesswindow.h"
 
 #include "tcpclient.h"
 
+#include "globals.h"
 
 #include <QDebug>
 
@@ -25,8 +24,6 @@ MainWindow::MainWindow(QWidget *parent)
     , m_volumeListLayout(new VolumeListLayout())
     , m_connectionDialog(nullptr)
     , m_tcpclient(new TCPClient(this))
-    , m_client(new User(0, "Fragi"))
-
 {
     ui->setupUi(this);
 
@@ -35,50 +32,22 @@ MainWindow::MainWindow(QWidget *parent)
     ui->ToolBar->setContextMenuPolicy(Qt::PreventContextMenu);
     ui->scrollAreaWidgetContents->setLayout(m_volumeListLayout);
 
-    connect(m_client,           SIGNAL(channelChanged(Channel *)),
-            m_volumeListLayout, SLOT(setChannel(Channel *)));
+    connect(m_tcpclient, SIGNAL(channelCreated(int, QString const &)),
+            m_channelList, SLOT(addChannel(int, QString const &)));
 
-    /*
-     *  Everything below is placeholder
-     */
-    Channel * defaultChannel = m_channelList->addChannel(1, "Default channel");
-    Channel * defaultChannel2 = m_channelList->addChannel(2, "Default channel2");
-    Channel * defaultChannel3 = m_channelList->addChannel(3, "Default channel3");
+    connect(m_tcpclient, SIGNAL(userConnected(int, QString const &, int)),
+            m_channelList, SLOT(addUser(int, QString const &, int)));
 
-    m_client->setChannel(defaultChannel);
+    connect(m_tcpclient, SIGNAL(initEnd()),
+            this,        SLOT(finishConnectionInit()));
 
-    User * u1 = new User(2, "Clemi");
-    u1->setChannel(defaultChannel);
-
-    User * u2 = new User(3, "Brekzo");
-    u2->setChannel(defaultChannel2);
-
-    User * u3 = new User(4, "Valou");
-    u3->setChannel(defaultChannel2);
-
-    User * u4 = new User(5, "Killearth");
-    u4->setChannel(defaultChannel3);
-
-    User * u5 = new User(6, "Pascal");
-    u5->setChannel(defaultChannel3);
-
-    User * u6 = new User(7, "Linael");
-    u6->setChannel(defaultChannel3);
-
-    User * u7 = new User(8, "Namastey");
-    u7->setChannel(defaultChannel2);
-
-    ui->treeView->expandAll();
-    /*
-     *  End placeholder
-     */
-
+    connect(m_tcpclient, SIGNAL(disconnected()),
+            this,        SLOT(cleanup()));
 
     //Chat
     connect(m_tcpclient, SIGNAL(chatMessageRecieved(QString)), ui->ChatHistory1,SLOT(append(QString)));
 
     connect(ui->ChatInput, SIGNAL(returnPressed()),this,SLOT(chatInput_onReturnPressed()));
-
 }
 
 MainWindow::~MainWindow()
@@ -86,12 +55,43 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::cleanup()
+{
+    m_volumeListLayout->clear();
+    m_volumeListLayout->setChannel(nullptr);
+    m_channelList->clear();
+}
 
 void MainWindow::chatInput_onReturnPressed()
 {
-    QByteArray message = ("0;"+m_client->name() +":" + ui->ChatInput->text() +"\n").toUtf8();
+    User * client = m_channelList->getUserFromId(ClientID);
+
+    if (client == nullptr)
+    {
+        qDebug() << __func__ << "Error: Client is not initialized";
+        return;
+    }
+
+    QByteArray message = ("0;" + client->name() + ":" + ui->ChatInput->text() + "\n").toUtf8();
     qDebug() << "Sending message : " << QString::fromUtf8(message);
     m_tcpclient->sendChatMessage(message);
+    ui->ChatInput->setText(QString());
+}
+
+void MainWindow::finishConnectionInit()
+{
+    User * client = m_channelList->getUserFromId(ClientID);
+
+    if (client == nullptr)
+    {
+        qDebug() << __func__ << "Error: Init client failed";
+        return;
+    }
+
+    connect(client,             SIGNAL(channelChanged(Channel *)),
+            m_volumeListLayout, SLOT(setChannel(Channel *)));
+
+    ui->treeView->expandAll();
 }
 
 void MainWindow::initTreeView()
@@ -115,8 +115,6 @@ void MainWindow::initConnectionDialog()
 
     connect(m_connectionDialog, SIGNAL(connectionRequested(QString const &, QString const &, QString const &, QString const &)),
             m_tcpclient,      SLOT(connect(QString const &, QString const &, QString const &, QString const &)));
-
-
 }
 
 void MainWindow::treeView_onDoubleClick(const QModelIndex & index)
@@ -126,7 +124,15 @@ void MainWindow::treeView_onDoubleClick(const QModelIndex & index)
     Channel * channel = qobject_cast<Channel *>(item);
     if (channel != nullptr)
     {
-        m_client->setChannel(channel);
+        User * client = m_channelList->getUserFromId(ClientID);
+
+        if (client == nullptr)
+        {
+            qDebug() << __func__ << "Error: Client is not initialized";
+            return;
+        }
+
+        client->setChannel(channel);
         ui->treeView->setExpanded(index, false);
     }
 }
