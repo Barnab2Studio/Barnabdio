@@ -46,7 +46,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_tcpclient, SIGNAL(userMoved(int, int)),
             m_channelList, SLOT(moveUser(int, int)));
 
-    connect(m_tcpclient, SIGNAL(userRenamed(int, QString const &)),
+    connect(m_tcpclient, SIGNAL(userMoved(int, int)),
+            this,        SLOT(expandClientChannel(int, int)));
+
+    connect(m_tcpclient,   SIGNAL(userRenamed(int, QString const &)),
             m_channelList, SLOT(renameUser(int, QString const &)));
 
     connect(m_channelList, SIGNAL(channelChangeRequested(int, int)),
@@ -62,21 +65,9 @@ MainWindow::MainWindow(QWidget *parent)
             this,        SLOT(cleanup()));
 
     //Chat
-    connect(m_tcpclient, SIGNAL(chatMessageRecieved(QString)), ui->ChatHistory1,SLOT(append(QString)));
+    connect(m_tcpclient, SIGNAL(chatMessageRecieved(QString)), ui->ChatHistory1, SLOT(append(QString)));
 
     connect(ui->ChatInput, SIGNAL(returnPressed()),this,SLOT(chatInput_onReturnPressed()));
-
-    m_treeViewMenu->addAction(ui->actionCreateChannel);
-    m_treeViewMenu->addSeparator();
-    m_treeViewMenu->addAction(ui->actionExpandAll);
-    m_treeViewMenu->addAction(ui->actionCollapseAll);
-
-    m_clientMenu->addAction(ui->actionRenameClient);
-
-    m_userMenu->addAction(ui->actionOpenPrivateChat);
-    m_userMenu->addAction(ui->actionSendPoke);
-
-    m_channelMenu->addAction(ui->actionEditChannel);
 }
 
 MainWindow::~MainWindow()
@@ -128,6 +119,8 @@ void MainWindow::initTreeView()
     ui->treeView->setHeaderHidden(true);
     ui->treeView->setAcceptDrops(true);
     ui->treeView->setDragEnabled(true);
+    ui->treeView->setUniformRowHeights(true);
+    ui->treeView->setRootIsDecorated(false);
     ui->treeView->setDragDropMode(QAbstractItemView::InternalMove);
     ui->treeView->setModel(m_channelList);
     ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -137,6 +130,23 @@ void MainWindow::initTreeView()
 
     connect(ui->treeView, SIGNAL(customContextMenuRequested(const QPoint &)),
             this,         SLOT(displayMenu(const QPoint &)));
+
+    m_treeViewMenu->addAction(ui->actionCreateChannel);
+
+    m_userMenu->addAction(ui->actionOpenPrivateChat);
+    m_userMenu->addAction(ui->actionSendPoke);
+
+    m_channelMenu->addAction(ui->actionEditChannel);
+    m_channelMenu->addAction(ui->actionDeleteChannel);
+}
+
+void MainWindow::expandClientChannel(int idChannel, int idUser)
+{
+    if (idUser != ClientID)
+        return;
+
+    QModelIndex index = m_channelList->match(m_channelList->index(0,0), Qt::UserRole, idChannel)[0];
+    ui->treeView->expand(index);
 }
 
 void MainWindow::displayMenu(const QPoint & pos)
@@ -188,9 +198,10 @@ void MainWindow::treeView_onDoubleClick(const QModelIndex & index)
             return;
         }
 
-        if (channel != client->parent())
-            m_tcpclient->sendChannelChangeRequest(channel->id(), client->id());
-        ui->treeView->setExpanded(index, false);
+        if (channel == client->parent())
+            return;
+
+        m_tcpclient->sendChannelChangeRequest(channel->id(), client->id());
     }
 }
 

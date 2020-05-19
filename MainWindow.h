@@ -27,6 +27,7 @@ public slots:
 private slots:
     void on_actionConnect_triggered();
 
+    void expandClientChannel(int idChannel, int idUser);
     void displayMenu(const QPoint & pos);
     void finishConnectionInit();
     void cleanup();

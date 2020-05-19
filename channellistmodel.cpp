@@ -30,15 +30,6 @@ Channel * ChannelListModel::addChannel(int id, QString const & name)
     m_channelList.append(channel);
     emit layoutChanged();
 
-    connect(channel, SIGNAL(userRenamed(User *)), // more signals to be done here
-            this,    SIGNAL(layoutChanged()));
-
-    connect(channel, SIGNAL(userAdded(User *)),
-            this,    SIGNAL(layoutChanged()));
-
-    connect(channel, SIGNAL(userRemoved(int)),
-            this,    SIGNAL(layoutChanged()));
-
     return channel;
 }
 
@@ -76,6 +67,7 @@ void ChannelListModel::addUser(int userId, QString const & userName, int channel
 
     m_userList[userId] = new User(userId, userName);
     m_userList[userId]->setChannel(channel);
+    emit layoutChanged();
 }
 
 void ChannelListModel::removeUser(int id)
@@ -85,6 +77,7 @@ void ChannelListModel::removeUser(int id)
 
     m_userList[id]->setChannel(nullptr);
     delete m_userList[id];
+    emit layoutChanged();
 }
 
 void ChannelListModel::renameUser(int id, QString const & name)
@@ -93,6 +86,7 @@ void ChannelListModel::renameUser(int id, QString const & name)
         return;
 
     m_userList[id]->rename(name);
+    emit layoutChanged();
 }
 
 User * ChannelListModel::getUserFromId(int id) const
@@ -111,6 +105,7 @@ void ChannelListModel::moveUser(int idChannel, int idUser)
         return;
 
     user->setChannel(channel);
+    emit layoutChanged();
 }
 
 void ChannelListModel::clear()
@@ -138,6 +133,13 @@ QVariant ChannelListModel::data(QModelIndex const & index, int role) const
         return QVariant();
 
     ChannelListItem * item = static_cast<ChannelListItem *>(index.internalPointer());
+
+    if (role == Qt::UserRole)
+    {
+        if (item->parent() == m_root)
+            return item->id();
+        return -1;
+    }
 
     if (role == Qt::FontRole)
     {

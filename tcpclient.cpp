@@ -216,7 +216,7 @@ void TCPClient::handleUserJoinedChannel(QStringList const & data)
 
 void TCPClient::handleUserRenamed(QStringList const & data)
 {
-    if (data.size() != 2)
+    if (data.size() != 3)
     {
         qDebug() << "Bad format for user renamed";
         return;
