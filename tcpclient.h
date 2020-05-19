@@ -57,6 +57,7 @@ private:
         WrongPassword = -20,
         UserJoinedChannel = 31,
         UserRenamed = 32,
+        UserDisconnected = 33,
         ChannelCreated = 42,
         ChannelDeleted = 43,
         EndOfTransmission = 99
@@ -73,6 +74,7 @@ private:
     void handleGoodPassword(QStringList const & data);
     void handleUserJoinedChannel(QStringList const & data);
     void handleUserRenamed(QStringList const & data);
+    void handleUserDisconnected(QStringList const & data);
     void handleWrongPassword(QStringList const & data);
     void handleChannelCreated(QStringList const & data);
     void handleChannelDeleted(QStringList const & data);

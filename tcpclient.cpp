@@ -25,6 +25,7 @@ TCPClient::TCPClient(QObject * parent)
         {WrongPassword, &TCPClient::handleWrongPassword},
         {UserJoinedChannel, &TCPClient::handleUserJoinedChannel},
         {UserRenamed, &TCPClient::handleUserRenamed},
+        {UserDisconnected, &TCPClient::handleUserDisconnected},
         {ChannelCreated, &TCPClient::handleChannelCreated},
         {ChannelDeleted, &TCPClient::handleChannelDeleted},
         {EndOfTransmission, &TCPClient::handleEndOfTransmission}
@@ -224,6 +225,16 @@ void TCPClient::handleUserRenamed(QStringList const & data)
 
     qDebug() << "sending userRenamed" << data[1].toInt() << data[2];
     emit userRenamed(data[1].toInt(), data[2]);
+}
+
+void TCPClient::handleUserDisconnected(QStringList const & data)
+{
+    if (data.size() != 2)
+    {
+        qDebug() << "Bad format for user disconnected";
+        return;
+    }
+    emit userDisconnected(data[1].toInt());
 }
 
 void TCPClient::handleChannelCreated(QStringList const & data)

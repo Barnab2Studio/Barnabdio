@@ -52,6 +52,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_tcpclient,   SIGNAL(userRenamed(int, QString const &)),
             m_channelList, SLOT(renameUser(int, QString const &)));
 
+    connect(m_tcpclient,   SIGNAL(userDisconnected(int)),
+            m_channelList, SLOT(removeUser(int)));
+
     connect(m_channelList, SIGNAL(channelChangeRequested(int, int)),
             m_tcpclient,   SLOT(sendChannelChangeRequest(int, int)));
 
