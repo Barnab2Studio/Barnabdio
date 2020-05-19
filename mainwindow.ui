@@ -237,6 +237,7 @@
    <addaction name="actionSpeakers"/>
    <addaction name="actionCapture"/>
    <addaction name="actionSettings"/>
+   <addaction name="actionCreateChannel"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionSettings">
@@ -273,6 +274,72 @@
    </property>
    <property name="text">
     <string>Connect</string>
+   </property>
+  </action>
+  <action name="actionCreateChannel">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/add.png</normaloff>:/icons/add.png</iconset>
+   </property>
+   <property name="text">
+    <string>CreateChannel</string>
+   </property>
+   <property name="toolTip">
+    <string>Create a channel</string>
+   </property>
+  </action>
+  <action name="actionExpandAll">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/down.png</normaloff>:/icons/down.png</iconset>
+   </property>
+   <property name="text">
+    <string>Expand all channels</string>
+   </property>
+  </action>
+  <action name="actionCollapseAll">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/up.png</normaloff>:/icons/up.png</iconset>
+   </property>
+   <property name="text">
+    <string>Collapse all channels</string>
+   </property>
+  </action>
+  <action name="actionRenameClient">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/change_nickname.png</normaloff>:/icons/change_nickname.png</iconset>
+   </property>
+   <property name="text">
+    <string>Change nickname</string>
+   </property>
+  </action>
+  <action name="actionSendPoke">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/poke.png</normaloff>:/icons/poke.png</iconset>
+   </property>
+   <property name="text">
+    <string>Pokoss</string>
+   </property>
+  </action>
+  <action name="actionEditChannel">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/edit.png</normaloff>:/icons/edit.png</iconset>
+   </property>
+   <property name="text">
+    <string>Edit channel</string>
+   </property>
+  </action>
+  <action name="actionOpenPrivateChat">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/channel_chat.png</normaloff>:/icons/channel_chat.png</iconset>
+   </property>
+   <property name="text">
+    <string>Open private chat</string>
    </property>
   </action>
  </widget>

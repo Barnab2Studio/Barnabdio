@@ -24,8 +24,10 @@ TCPClient::TCPClient(QObject * parent)
         {GoodPassword, &TCPClient::handleGoodPassword},
         {WrongPassword, &TCPClient::handleWrongPassword},
         {UserJoinedChannel, &TCPClient::handleUserJoinedChannel},
+        {UserRenamed, &TCPClient::handleUserRenamed},
         {ChannelCreated, &TCPClient::handleChannelCreated},
-        {ChannelDeleted, &TCPClient::handleChannelDeleted}
+        {ChannelDeleted, &TCPClient::handleChannelDeleted},
+        {EndOfTransmission, &TCPClient::handleEndOfTransmission}
     };
 }
 
@@ -42,6 +44,7 @@ void TCPClient::connect(QString const & server, QString const & port, QString co
         socket->disconnectFromHost();
     }
 
+    this->name = name;
     socket->connectToHost(server,port.toInt());
 
     emit chatMessageRecieved("Connecting to server " + server);
@@ -92,33 +95,35 @@ void TCPClient::dataReceived()
     }
 }
 
-void TCPClient::notifyClientNameChanged(QString const & name)
+void TCPClient::sendUserNameChangeRequest(int id, QString const & name)
 {
-
-}
-
-void TCPClient::notifyClientChannelChanged(int idChannel, int idUser)
-{
-    QByteArray message = (QString::number(UserJoinedChannel) + ";" + QString::number(idChannel) + ";" +  QString::number(idUser) + "\n").toUtf8();
-    qDebug() << "notifyClientChannelChanged" << idChannel << idUser;
+    QByteArray message = (QString::number(UserRenamed) + ";" + QString::number(id) + ";" +  name + "\n").toUtf8();
     QByteArray packet;
     QDataStream out(&packet, QIODevice::WriteOnly);
     out.writeRawData(message, message.length());
     socket->write(packet);
 }
 
+void TCPClient::sendChannelChangeRequest(int idChannel, int idUser)
+{
+    QByteArray message = (QString::number(UserJoinedChannel) + ";" + QString::number(idChannel) + ";" +  QString::number(idUser) + "\n").toUtf8();
+    QByteArray packet;
+    QDataStream out(&packet, QIODevice::WriteOnly);
+    out.writeRawData(message, message.length());
+    socket->write(packet);
+}
 
-void TCPClient::notifyChannelCreated(int id, QString const & name)
+void TCPClient::sendChannelCreationRequest(QString const & name)
 {
 
 }
 
-void TCPClient::notifyChannelDeleted(int id)
+void TCPClient::sendChannelDeletionRequest(int id)
 {
 
 }
 
-void TCPClient::notifyChannelRenamed(int id, QString const & name)
+void TCPClient::sendChannelNameChangeRequest(int id, QString const & name)
 {
 
 }
@@ -185,12 +190,11 @@ void TCPClient::handleUserList(QStringList const & data)
         }
         emit userConnected(userData[0].toInt(), userData[1], userData[2].toInt());
     }
-    emit initEnd();
 }
 
 void TCPClient::handleGoodPassword(QStringList const & data)
 {
-    emit chatMessageRecieved("Connected to server");
+    emit chatMessageRecieved("Connected to server as " + name);
 }
 
 void TCPClient::handleWrongPassword(QStringList const & data)
@@ -207,8 +211,19 @@ void TCPClient::handleUserJoinedChannel(QStringList const & data)
         return;
     }
 
-    qDebug() << "handleUserJoinedChannel" << data[1].toInt() << data[2].toInt();
     emit userMoved(data[1].toInt(), data[2].toInt());
+}
+
+void TCPClient::handleUserRenamed(QStringList const & data)
+{
+    if (data.size() != 2)
+    {
+        qDebug() << "Bad format for user renamed";
+        return;
+    }
+
+    qDebug() << "sending userRenamed" << data[1].toInt() << data[2];
+    emit userRenamed(data[1].toInt(), data[2]);
 }
 
 void TCPClient::handleChannelCreated(QStringList const & data)
@@ -221,3 +236,7 @@ void TCPClient::handleChannelDeleted(QStringList const & data)
     qDebug() << __func__;
 }
 
+void TCPClient::handleEndOfTransmission(QStringList const & data)
+{
+    emit initEnd();
+}

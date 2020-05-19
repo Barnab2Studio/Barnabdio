@@ -3,7 +3,9 @@
 #include "channellistitem.h"
 #include "channel.h"
 #include "user.h"
+#include "globals.h"
 
+#include <QFont>
 #include <QtDebug>
 #include <QMimeData>
 
@@ -85,6 +87,14 @@ void ChannelListModel::removeUser(int id)
     delete m_userList[id];
 }
 
+void ChannelListModel::renameUser(int id, QString const & name)
+{
+    if (m_userList.count(id) == 0)
+        return;
+
+    m_userList[id]->rename(name);
+}
+
 User * ChannelListModel::getUserFromId(int id) const
 {
     if (m_userList.count(id) == 0)
@@ -129,13 +139,37 @@ QVariant ChannelListModel::data(QModelIndex const & index, int role) const
 
     ChannelListItem * item = static_cast<ChannelListItem *>(index.internalPointer());
 
-    if ( role == Qt::DecorationRole )
+    if (role == Qt::FontRole)
+    {
+        QFont font;
+
+        if (item->parent() != m_root && item->id() == ClientID)
+            font.setBold(true);
+
+        return font;
+    }
+
+    if (role == Qt::EditRole)
+        return item->name();
+
+    if (role == Qt::DecorationRole)
         return item->icon();
 
-    if (role != Qt::DisplayRole)
-        return QVariant();
+    if (role == Qt::DisplayRole)
+        return item->name();
 
-    return item->name();
+    return QVariant();
+}
+
+bool ChannelListModel::setData(const QModelIndex & index, const QVariant & value, int role)
+{
+    if (!index.isValid())
+        return false;
+
+    ChannelListItem * item = static_cast<ChannelListItem *>(index.internalPointer());
+    if (item->parent() != m_root && value != item->name())
+        emit userNameChangeRequested(item->id(), value.toString());
+    return true;
 }
 
 Qt::ItemFlags ChannelListModel::flags(QModelIndex const & index) const
@@ -144,12 +178,22 @@ Qt::ItemFlags ChannelListModel::flags(QModelIndex const & index) const
         return Qt::NoItemFlags;
 
     ChannelListItem * item = static_cast<ChannelListItem *>(index.internalPointer());
+
+    /* Root case */
     if (item == m_root)
         return QAbstractItemModel::flags(index);
 
+    /* User case */
     if (item->parent() != m_root)
-        return Qt::ItemIsDragEnabled | QAbstractItemModel::flags(index);
+    {
+        Qt::ItemFlags flags = Qt::ItemIsDragEnabled | QAbstractItemModel::flags(index);
 
+        if (item->id() == ClientID)
+            flags |= Qt::ItemIsEditable;
+
+        return flags;
+    }
+    /* Channel case */
     return Qt::ItemIsDropEnabled | QAbstractItemModel::flags(index);
 }
 
@@ -208,8 +252,8 @@ bool ChannelListModel::dropMimeData(const QMimeData * data, Qt::DropAction actio
     Channel * parentSource = getChannelFromId(id & 0xffff);
     User * source = parentSource->getUserFromId(id >> 16);
 
-    if (source->setChannel(item))
-        emit userChannelChanged(item->id(), source->id());
+    if (item != source->parent())
+        emit channelChangeRequested(item->id(), source->id());
 
     return true;
 }

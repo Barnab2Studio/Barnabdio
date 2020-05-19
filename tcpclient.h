@@ -15,17 +15,16 @@ public:
 public slots:
     void connect(QString const & server, QString const & port, QString const & password, QString const & name);
 
-
     void dataReceived(); //Handle packet reception and then emit signal accordingly to packet content
 
     void sendChatMessage(QString const & message); // in the future, we will specify for which channel we must send the message
 
-    void notifyClientNameChanged(QString const & name);
-    void notifyClientChannelChanged(int idChannel, int idUser);
+    void sendUserNameChangeRequest(int id, QString const & name);
+    void sendChannelChangeRequest(int idChannel, int idUser);
 
-    void notifyChannelCreated(int id, QString const & name);
-    void notifyChannelDeleted(int id);
-    void notifyChannelRenamed(int id, QString const & name);
+    void sendChannelCreationRequest(QString const & name);
+    void sendChannelDeletionRequest(int id);
+    void sendChannelNameChangeRequest(int id, QString const & name);
 
 signals:
     void chatMessageRecieved(QString const & message);
@@ -44,6 +43,7 @@ signals:
 
 private:
     QTcpSocket * socket;
+    QString name;
 
     enum MessageType
     {
@@ -56,8 +56,10 @@ private:
         GoodPassword = 20,
         WrongPassword = -20,
         UserJoinedChannel = 31,
+        UserRenamed = 32,
         ChannelCreated = 42,
-        ChannelDeleted = 43
+        ChannelDeleted = 43,
+        EndOfTransmission = 99
     };
     typedef void (TCPClient::*parseDataFp)(QStringList const &);
     QMap<MessageType, parseDataFp> dataHandler;
@@ -70,9 +72,11 @@ private:
     void handleUserList(QStringList const & data);
     void handleGoodPassword(QStringList const & data);
     void handleUserJoinedChannel(QStringList const & data);
+    void handleUserRenamed(QStringList const & data);
     void handleWrongPassword(QStringList const & data);
     void handleChannelCreated(QStringList const & data);
     void handleChannelDeleted(QStringList const & data);
+    void handleEndOfTransmission(QStringList const & data);
 };
 
 #endif // TCPCLIENT_H

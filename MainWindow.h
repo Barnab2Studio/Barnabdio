@@ -27,6 +27,7 @@ public slots:
 private slots:
     void on_actionConnect_triggered();
 
+    void displayMenu(const QPoint & pos);
     void finishConnectionInit();
     void cleanup();
 
@@ -37,8 +38,11 @@ private:
     Ui::MainWindow * ui;
     ChannelListModel * m_channelList;
     VolumeListLayout * m_volumeListLayout;
-
     ConnectionDialog * m_connectionDialog;
+    QMenu * m_treeViewMenu;
+    QMenu * m_userMenu;
+    QMenu * m_clientMenu;
+    QMenu * m_channelMenu;
     TCPClient * m_tcpclient;
 };
 #endif // MAINWINDOW_H
