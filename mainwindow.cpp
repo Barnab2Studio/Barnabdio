@@ -22,6 +22,8 @@
 #include <QtMultimedia/QAudioInput>
 #include <QtMultimedia/QAudioOutput>
 
+#include "opus.h"
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -82,8 +84,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_tcpclient, SIGNAL(chatMessageRecieved(QString)), ui->ChatHistory1,SLOT(append(QString)));
 
     connect(ui->ChatInput, SIGNAL(returnPressed()),this,SLOT(chatInput_onReturnPressed()));
-
-
 
 
     const QAudioDeviceInfo inputDeviceInfo = QAudioDeviceInfo::defaultInputDevice();

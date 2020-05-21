@@ -335,3 +335,8 @@ RESOURCES += \
     framelesswindow.qrc \
     resources.qrc \
     resources.qrc \
+
+
+INCLUDEPATH += 3rdparty/opus/include
+LIBS += -L"3rdparty/opus/lib" -opus
+
