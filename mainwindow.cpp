@@ -22,8 +22,6 @@
 #include <QtMultimedia/QAudioInput>
 #include <QtMultimedia/QAudioOutput>
 
-#include "opus.h"
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -100,7 +98,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_audioInput = new QAudioInput(inputDeviceInfo, formatAudio, this);
 
     QAudioOutput* audioOutput = new QAudioOutput(outputDeviceInfo,formatAudio,this);
-   m_audioInput->start(audioOutput->start());
+    m_audioInput->start(audioOutput->start());
 
 }
 

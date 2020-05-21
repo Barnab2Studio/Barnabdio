@@ -337,6 +337,16 @@ RESOURCES += \
     resources.qrc \
 
 
-INCLUDEPATH += 3rdparty/opus/include
-LIBS += -L"3rdparty/opus/lib" -opus
+#INCLUDEPATH += "$$PWD/3rdparty/opus/include"
+#LIBS += -L"$$PWD/3rdparty/opus/lib/" -lopus
+#DESTDIR = /tmp/$${TARGET}/bin
+##TARGET = Barnabdio
 
+#win32:CONFIG(release, debug|release): LIBS += -L$$PWD/3rdparty/opus/lib/ -lopus
+#else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/3rdparty/opus/lib/ -lopus
+#else:unix: LIBS += -L$$PWD/3rdparty/opus/lib/ -lopus
+
+#LIBS += -L$$PWD/3rdparty/opus/lib/ -lopus
+
+#INCLUDEPATH += $$PWD/3rdparty/opus/include
+#DEPENDPATH += $$PWD/3rdparty/opus/include
