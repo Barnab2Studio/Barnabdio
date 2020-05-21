@@ -34,10 +34,20 @@ QString const & ChannelListItem::name() const
 void ChannelListItem::rename(QString const & name)
 {
     m_name = name;
-//    emit itemRenamed(name);
+    emit renamed();
 }
 
 ChannelListItem * ChannelListItem::parent()
 {
     return m_parent;
+}
+
+Qt::ItemFlags ChannelListItem::flags()
+{
+    return m_flags;
+}
+
+void ChannelListItem::setFlags(Qt::ItemFlags flags)
+{
+    m_flags = flags;
 }

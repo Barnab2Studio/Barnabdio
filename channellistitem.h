@@ -27,11 +27,18 @@ public:
 
     ChannelListItem * parent();
 
+    Qt::ItemFlags flags();
+    void setFlags(Qt::ItemFlags flags);
+
+signals:
+    void renamed();
+
 protected:
     const int m_id;
     QString m_name;
     QIcon m_icon;
     ChannelListItem * m_parent;
+    Qt::ItemFlags m_flags;
 };
 
 #endif // CHANNEL_H

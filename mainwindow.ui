@@ -33,6 +33,42 @@
          <height>0</height>
         </size>
        </property>
+       <property name="lineWidth">
+        <number>0</number>
+       </property>
+       <property name="dragEnabled">
+        <bool>true</bool>
+       </property>
+       <property name="dragDropOverwriteMode">
+        <bool>true</bool>
+       </property>
+       <property name="dragDropMode">
+        <enum>QAbstractItemView::InternalMove</enum>
+       </property>
+       <property name="alternatingRowColors">
+        <bool>false</bool>
+       </property>
+       <property name="rootIsDecorated">
+        <bool>false</bool>
+       </property>
+       <property name="uniformRowHeights">
+        <bool>true</bool>
+       </property>
+       <property name="itemsExpandable">
+        <bool>false</bool>
+       </property>
+       <property name="expandsOnDoubleClick">
+        <bool>false</bool>
+       </property>
+       <attribute name="headerVisible">
+        <bool>false</bool>
+       </attribute>
+       <attribute name="headerMinimumSectionSize">
+        <number>0</number>
+       </attribute>
+       <attribute name="headerDefaultSectionSize">
+        <number>0</number>
+       </attribute>
       </widget>
       <widget class="QSplitter" name="RightUpDownLayout">
        <property name="orientation">
@@ -273,6 +309,66 @@
    </property>
    <property name="text">
     <string>Connect</string>
+   </property>
+  </action>
+  <action name="actionCreateChannel">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/add.png</normaloff>:/icons/add.png</iconset>
+   </property>
+   <property name="text">
+    <string>Create new channel</string>
+   </property>
+   <property name="toolTip">
+    <string>Create a channel</string>
+   </property>
+  </action>
+  <action name="actionRenameClient">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/change_nickname.png</normaloff>:/icons/change_nickname.png</iconset>
+   </property>
+   <property name="text">
+    <string>Change nickname</string>
+   </property>
+  </action>
+  <action name="actionSendPoke">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/poke.png</normaloff>:/icons/poke.png</iconset>
+   </property>
+   <property name="text">
+    <string>Pokoss</string>
+   </property>
+  </action>
+  <action name="actionRenameChannel">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/change_nickname.png</normaloff>:/icons/change_nickname.png</iconset>
+   </property>
+   <property name="text">
+    <string>Rename channel</string>
+   </property>
+   <property name="toolTip">
+    <string>Rename channel</string>
+   </property>
+  </action>
+  <action name="actionOpenPrivateChat">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/channel_chat.png</normaloff>:/icons/channel_chat.png</iconset>
+   </property>
+   <property name="text">
+    <string>Open private chat</string>
+   </property>
+  </action>
+  <action name="actionDeleteChannel">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/remove.png</normaloff>:/icons/remove.png</iconset>
+   </property>
+   <property name="text">
+    <string>Delete channel</string>
    </property>
   </action>
  </widget>

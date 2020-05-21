@@ -1,3 +1,3 @@
 #include "globals.h"
 
-int ClientID = 0;
+int ClientID = -1;

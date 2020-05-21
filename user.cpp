@@ -8,6 +8,7 @@ User::User(int id, QString const & name, ChannelListItem * parent)
     : ChannelListItem(id, name, parent)
     , m_volume(100)
 {
+    m_flags = Qt::ItemIsDragEnabled;
 }
 
 User::~User()

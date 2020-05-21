@@ -19,7 +19,7 @@ public slots:
     void clear();
 
 private slots:
-    void rename(User * user);
+    void rename();
     void add(User * user);
     void remove(int id);
 
