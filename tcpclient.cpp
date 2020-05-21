@@ -9,25 +9,27 @@ TCPClient::TCPClient(QObject * parent)
 {
     socket = new QTcpSocket(this);
 
-    QObject::connect(socket,SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(errorSocket(QAbstractSocket::SocketError)));
+    QObject::connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(errorSocket(QAbstractSocket::SocketError)));
     QObject::connect(socket, SIGNAL(connected()), this, SLOT(connected()));
     QObject::connect(socket, SIGNAL(readyRead()), this, SLOT(dataReceived()));
     QObject::connect(socket, SIGNAL(disconnected()), this, SIGNAL(disconnected()));
 
     dataHandler = {
-        {UserError, &TCPClient::handleUserError},
-        {ChatMessage, &TCPClient::handleChatMessage},
-        {ServerMessage, &TCPClient::handleServerMessage},
-        {StartupInfo, &TCPClient::handleStartupInfo},
-        {ChannelList, &TCPClient::handleChannelList},
-        {UserList, &TCPClient::handleUserList},
-        {GoodPassword, &TCPClient::handleGoodPassword},
-        {WrongPassword, &TCPClient::handleWrongPassword},
+        {UserError,         &TCPClient::handleUserError},
+        {ChatMessage,       &TCPClient::handleChatMessage},
+        {ServerMessage,     &TCPClient::handleServerMessage},
+        {StartupInfo,       &TCPClient::handleStartupInfo},
+        {ChannelList,       &TCPClient::handleChannelList},
+        {UserList,          &TCPClient::handleUserList},
+        {GoodPassword,      &TCPClient::handleGoodPassword},
+        {WrongPassword,     &TCPClient::handleWrongPassword},
         {UserJoinedChannel, &TCPClient::handleUserJoinedChannel},
-        {UserRenamed, &TCPClient::handleUserRenamed},
-        {UserDisconnected, &TCPClient::handleUserDisconnected},
-        {ChannelCreated, &TCPClient::handleChannelCreated},
-        {ChannelDeleted, &TCPClient::handleChannelDeleted},
+        {UserRenamed,       &TCPClient::handleUserRenamed},
+        {UserDisconnected,  &TCPClient::handleUserDisconnected},
+        {ChannelCreated,    &TCPClient::handleChannelCreated},
+        {ChannelRenamed,    &TCPClient::handleChannelRenamed},
+        {ChannelDeleted,    &TCPClient::handleChannelDeleted},
+        {RequestDenied,    &TCPClient::handleRequestDenied},
         {EndOfTransmission, &TCPClient::handleEndOfTransmission}
     };
 }
@@ -35,6 +37,15 @@ TCPClient::TCPClient(QObject * parent)
 TCPClient::~TCPClient()
 {
     socket->close();
+}
+
+void TCPClient::sendRequest(QString const & request)
+{
+    qDebug() << "pouet" << request;
+    QByteArray packet;
+    QDataStream out(&packet, QIODevice::WriteOnly);
+    out.writeRawData(request.toUtf8(), request.toUtf8().length());
+    socket->write(packet);
 }
 
 void TCPClient::connect(QString const & server, QString const & port, QString const & password, QString const & name)
@@ -55,22 +66,12 @@ void TCPClient::connect(QString const & server, QString const & port, QString co
     }
 
     //Shlaguerie as long as server do not handle auth process
-    QByteArray paquet;
-    QDataStream out(&paquet, QIODevice::WriteOnly);
-
-    QByteArray authMessage = (password +";" + name).toUtf8();
-
-    out.writeRawData(authMessage,authMessage.length());
-
-    socket->write(paquet);
+    sendRequest((password +";" + name).toUtf8());
 }
 
 void TCPClient::sendChatMessage(QString const & message)
 {
-    QByteArray packet;
-    QDataStream out(&packet, QIODevice::WriteOnly);
-    out.writeRawData(message.toUtf8(),message.toUtf8().length());
-    socket->write(packet);
+    sendRequest(message);
 }
 
 void TCPClient::dataReceived()
@@ -99,34 +100,31 @@ void TCPClient::dataReceived()
 void TCPClient::sendUserNameChangeRequest(int id, QString const & name)
 {
     QByteArray message = (QString::number(UserRenamed) + ";" + QString::number(id) + ";" +  name + "\n").toUtf8();
-    QByteArray packet;
-    QDataStream out(&packet, QIODevice::WriteOnly);
-    out.writeRawData(message, message.length());
-    socket->write(packet);
+    sendRequest(message);
 }
 
 void TCPClient::sendChannelChangeRequest(int idChannel, int idUser)
 {
     QByteArray message = (QString::number(UserJoinedChannel) + ";" + QString::number(idChannel) + ";" +  QString::number(idUser) + "\n").toUtf8();
-    QByteArray packet;
-    QDataStream out(&packet, QIODevice::WriteOnly);
-    out.writeRawData(message, message.length());
-    socket->write(packet);
+    sendRequest(message);
 }
 
 void TCPClient::sendChannelCreationRequest(QString const & name)
 {
-
+    QByteArray message = (QString::number(ChannelCreated) + ";" + name + "\n").toUtf8();
+    sendRequest(message);
 }
 
 void TCPClient::sendChannelDeletionRequest(int id)
 {
-
+    QByteArray message = (QString::number(ChannelDeleted) + ";" + QString::number(id) + "\n").toUtf8();
+    sendRequest(message);
 }
 
 void TCPClient::sendChannelNameChangeRequest(int id, QString const & name)
 {
-
+    QByteArray message = (QString::number(ChannelRenamed) + ";" + QString::number(id) + ";" + name + "\n").toUtf8();
+    sendRequest(message);
 }
 
 void TCPClient::handleUserError(QStringList const & data)
@@ -138,7 +136,7 @@ void TCPClient::handleChatMessage(QStringList const & data)
 {
     if (data.size() < 2)
     {
-        qDebug() << "Bad chat message format";
+        qDebug() << "Bad format for " << __func__;
         return;
     }
 
@@ -158,7 +156,7 @@ void TCPClient::handleStartupInfo(QStringList const & data)
 {
     if (data.size() != 2)
     {
-        qDebug() << "Bad startup info format";
+        qDebug() << "Bad format for " << __func__;
         return;
     }
 
@@ -172,7 +170,7 @@ void TCPClient::handleChannelList(QStringList const & data)
         QStringList channelData = it->split('|');
         if (channelData.size() != 2)
         {
-            qDebug() << "Bad format for channel" << *it;
+            qDebug() << "Bad format for " << __func__ << *it;
             continue;
         }
         emit channelCreated(channelData[0].toInt(), channelData[1]);
@@ -186,7 +184,8 @@ void TCPClient::handleUserList(QStringList const & data)
         QStringList userData = it->split('|');
         if (userData.size() != 3)
         {
-            qDebug() << "Bad format for user" << *it;
+
+            qDebug() << "Bad format for " << __func__ << *it;
             continue;
         }
         emit userConnected(userData[0].toInt(), userData[1], userData[2].toInt());
@@ -208,7 +207,7 @@ void TCPClient::handleUserJoinedChannel(QStringList const & data)
 {
     if (data.size() != 3)
     {
-        qDebug() << "Bad format for user joined channel";
+        qDebug() << "Bad format for " << __func__;
         return;
     }
 
@@ -219,11 +218,10 @@ void TCPClient::handleUserRenamed(QStringList const & data)
 {
     if (data.size() != 3)
     {
-        qDebug() << "Bad format for user renamed";
+        qDebug() << "Bad format for " << __func__;
         return;
     }
 
-    qDebug() << "sending userRenamed" << data[1].toInt() << data[2];
     emit userRenamed(data[1].toInt(), data[2]);
 }
 
@@ -231,7 +229,7 @@ void TCPClient::handleUserDisconnected(QStringList const & data)
 {
     if (data.size() != 2)
     {
-        qDebug() << "Bad format for user disconnected";
+        qDebug() << "Bad format for " << __func__;
         return;
     }
     emit userDisconnected(data[1].toInt());
@@ -239,12 +237,45 @@ void TCPClient::handleUserDisconnected(QStringList const & data)
 
 void TCPClient::handleChannelCreated(QStringList const & data)
 {
-    qDebug() << __func__;
+    if (data.size() != 3)
+    {
+        qDebug() << "Bad format for " << __func__;
+        return;
+    }
+    emit channelCreated(data[1].toInt(), data[2]);
+}
+
+void TCPClient::handleChannelRenamed(QStringList const & data)
+{
+    if (data.size() != 3)
+    {
+        qDebug() << "Bad format for " << __func__;
+        return;
+    }
+
+    emit channelRenamed(data[1].toInt(), data[2]);
 }
 
 void TCPClient::handleChannelDeleted(QStringList const & data)
 {
-    qDebug() << __func__;
+    if (data.size() != 2)
+    {
+        qDebug() << "Bad format for " << __func__;
+        return;
+    }
+
+    emit channelDeleted(data[1].toInt());
+}
+
+void TCPClient::handleRequestDenied(const QStringList & data)
+{
+    if (data.size() != 2)
+    {
+        qDebug() << "Bad format for " << __func__;
+        return;
+    }
+
+    emit chatMessageRecieved("Request denied: " + data[1]);
 }
 
 void TCPClient::handleEndOfTransmission(QStringList const & data)

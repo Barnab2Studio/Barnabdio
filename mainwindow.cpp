@@ -8,6 +8,7 @@
 #include "channellistitem.h"
 #include "channellistmodel.h"
 
+#include "channelcreationdialog.h"
 #include "connectiondialog.h"
 #include "framelesswindow.h"
 
@@ -24,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent)
     , m_channelList(new ChannelListModel(this))
     , m_volumeListLayout(new VolumeListLayout())
     , m_connectionDialog(nullptr)
+    , m_channelCreationDialog(nullptr)
     , m_treeViewMenu(new QMenu(this))
     , m_userMenu(new QMenu(this))
     , m_clientMenu(new QMenu(this))
@@ -55,11 +57,20 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_tcpclient,   SIGNAL(userDisconnected(int)),
             m_channelList, SLOT(removeUser(int)));
 
+    connect(m_tcpclient,   SIGNAL(channelRenamed(int, QString const &)),
+            m_channelList, SLOT(renameChannel(int, QString const &)));
+
+    connect(m_tcpclient,   SIGNAL(channelDeleted(int)),
+            m_channelList, SLOT(removeChannel(int)));
+
     connect(m_channelList, SIGNAL(channelChangeRequested(int, int)),
             m_tcpclient,   SLOT(sendChannelChangeRequest(int, int)));
 
     connect(m_channelList, SIGNAL(userNameChangeRequested(int, QString const &)),
             m_tcpclient,   SLOT(sendUserNameChangeRequest(int, QString const &)));
+
+    connect(m_channelList, SIGNAL(channelNameChangeRequested(int, QString const &)),
+            m_tcpclient,   SLOT(sendChannelNameChangeRequest(int, QString const &)));
 
     connect(m_tcpclient, SIGNAL(initEnd()),
             this,        SLOT(finishConnectionInit()));
@@ -80,9 +91,13 @@ MainWindow::~MainWindow()
 
 void MainWindow::cleanup()
 {
+    ClientID = -1;
     m_volumeListLayout->clear();
     m_volumeListLayout->setChannel(nullptr);
     m_channelList->clear();
+
+    if (m_channelCreationDialog)
+    m_channelCreationDialog->hide();
 }
 
 void MainWindow::chatInput_onReturnPressed()
@@ -114,17 +129,12 @@ void MainWindow::finishConnectionInit()
     connect(client,             SIGNAL(channelChanged(Channel *)),
             m_volumeListLayout, SLOT(setChannel(Channel *)));
 
+    m_volumeListLayout->setChannel(static_cast<Channel *>(client->parent()));
     ui->treeView->expandAll();
 }
 
 void MainWindow::initTreeView()
 {
-    ui->treeView->setHeaderHidden(true);
-    ui->treeView->setAcceptDrops(true);
-    ui->treeView->setDragEnabled(true);
-    ui->treeView->setUniformRowHeights(true);
-    ui->treeView->setRootIsDecorated(false);
-    ui->treeView->setDragDropMode(QAbstractItemView::InternalMove);
     ui->treeView->setModel(m_channelList);
     ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
@@ -139,7 +149,7 @@ void MainWindow::initTreeView()
     m_userMenu->addAction(ui->actionOpenPrivateChat);
     m_userMenu->addAction(ui->actionSendPoke);
 
-    m_channelMenu->addAction(ui->actionEditChannel);
+    m_channelMenu->addAction(ui->actionRenameChannel);
     m_channelMenu->addAction(ui->actionDeleteChannel);
 }
 
@@ -154,6 +164,9 @@ void MainWindow::expandClientChannel(int idChannel, int idUser)
 
 void MainWindow::displayMenu(const QPoint & pos)
 {
+    if (ClientID < 0)
+        return;
+
     QMenu * menu;
     QModelIndex index = ui->treeView->indexAt(pos);
 
@@ -168,11 +181,17 @@ void MainWindow::displayMenu(const QPoint & pos)
         if (user)
             menu = ((user->id() == ClientID) ? m_clientMenu : m_userMenu);
         else
+        {
             menu = m_channelMenu;
+        }
     }
+
+    if (menu->actions().size() == 0)
+        return;
 
     QTimer::singleShot(0, []{}); /* fixes small display bug */
     menu->popup(ui->treeView->mapToGlobal(pos));
+    m_previousActionIndex = index;
 }
 
 void MainWindow::initConnectionDialog()
@@ -184,6 +203,17 @@ void MainWindow::initConnectionDialog()
 
     connect(m_connectionDialog, SIGNAL(connectionRequested(QString const &, QString const &, QString const &, QString const &)),
             m_tcpclient,      SLOT(connect(QString const &, QString const &, QString const &, QString const &)));
+}
+
+void MainWindow::initChannelCreationDialog()
+{
+    if (m_channelCreationDialog != nullptr)
+        return;
+
+    m_channelCreationDialog = new ChannelCreationDialog(this);
+
+    connect(m_channelCreationDialog, SIGNAL(channelCreationRequested(QString const)),
+            m_tcpclient,             SLOT(sendChannelCreationRequest(QString const &)));
 }
 
 void MainWindow::treeView_onDoubleClick(const QModelIndex & index)
@@ -212,4 +242,27 @@ void MainWindow::on_actionConnect_triggered()
 {
     initConnectionDialog();
     m_connectionDialog->show();
+}
+
+void MainWindow::on_actionCreateChannel_triggered()
+{
+    initChannelCreationDialog();
+    m_channelCreationDialog->show();
+}
+
+void MainWindow::on_actionRenameChannel_triggered()
+{
+    ChannelListItem * item = static_cast<ChannelListItem *>(m_previousActionIndex.internalPointer());
+    item->setFlags(item->flags() | Qt::ItemIsEditable);
+
+    ui->treeView->edit(m_previousActionIndex);
+    m_previousActionIndex = QModelIndex();
+}
+
+void MainWindow::on_actionDeleteChannel_triggered()
+{
+    ChannelListItem * item = static_cast<ChannelListItem *>(m_previousActionIndex.internalPointer());
+
+    m_tcpclient->sendChannelDeletionRequest(item->id());
+    m_previousActionIndex = QModelIndex();
 }

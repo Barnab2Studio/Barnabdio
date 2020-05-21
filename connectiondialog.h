@@ -21,8 +21,8 @@ public slots:
     void show();
 
 private slots:
-    void onConnectButton_pressed();
-    void onCancelButton_pressed();
+    void on_ConnectButton_pressed();
+    void on_CancelButton_pressed();
 
 signals:
     void connectionRequested(QString const &, QString const &, QString const &, QString const &);

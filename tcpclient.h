@@ -15,9 +15,9 @@ public:
 public slots:
     void connect(QString const & server, QString const & port, QString const & password, QString const & name);
 
-    void dataReceived(); //Handle packet reception and then emit signal accordingly to packet content
+    void dataReceived();
 
-    void sendChatMessage(QString const & message); // in the future, we will specify for which channel we must send the message
+    void sendChatMessage(QString const & message);
 
     void sendUserNameChangeRequest(int id, QString const & name);
     void sendChannelChangeRequest(int idChannel, int idUser);
@@ -25,6 +25,7 @@ public slots:
     void sendChannelCreationRequest(QString const & name);
     void sendChannelDeletionRequest(int id);
     void sendChannelNameChangeRequest(int id, QString const & name);
+    void sendRequest(QString const & request);
 
 signals:
     void chatMessageRecieved(QString const & message);
@@ -59,7 +60,9 @@ private:
         UserRenamed = 32,
         UserDisconnected = 33,
         ChannelCreated = 42,
-        ChannelDeleted = 43,
+        ChannelRenamed = 43,
+        ChannelDeleted = 44,
+        RequestDenied = 98,
         EndOfTransmission = 99
     };
     typedef void (TCPClient::*parseDataFp)(QStringList const &);
@@ -77,7 +80,9 @@ private:
     void handleUserDisconnected(QStringList const & data);
     void handleWrongPassword(QStringList const & data);
     void handleChannelCreated(QStringList const & data);
+    void handleChannelRenamed(QStringList const & data);
     void handleChannelDeleted(QStringList const & data);
+    void handleRequestDenied(QStringList const & data);
     void handleEndOfTransmission(QStringList const & data);
 };
 

@@ -13,7 +13,6 @@ ChannelListModel::ChannelListModel(QObject * parent)
     : QAbstractItemModel(parent)
 {
     m_root = new Channel(0, "Header");
-
 }
 
 ChannelListModel::~ChannelListModel()
@@ -49,6 +48,17 @@ void ChannelListModel::removeChannel(int id)
         delete channel;
         emit layoutChanged();
     }
+}
+
+void ChannelListModel::renameChannel(int id, QString const & name)
+{
+    Channel * channel = getChannelFromId(id);
+
+    if (channel == nullptr)
+        return;
+
+    channel->rename(name);
+    emit layoutChanged();
 }
 
 Channel * ChannelListModel::getChannelFromId(int id) const
@@ -165,12 +175,23 @@ QVariant ChannelListModel::data(QModelIndex const & index, int role) const
 
 bool ChannelListModel::setData(const QModelIndex & index, const QVariant & value, int role)
 {
-    if (!index.isValid())
+    if (!index.isValid() || value == QVariant())
         return false;
 
     ChannelListItem * item = static_cast<ChannelListItem *>(index.internalPointer());
-    if (item->parent() != m_root && value != item->name())
-        emit userNameChangeRequested(item->id(), value.toString());
+
+    if (item->parent() != m_root)
+    {
+        if (value != item->name())
+            emit userNameChangeRequested(item->id(), value.toString());
+    }
+    else
+    {
+        if (value != item->name())
+            emit channelNameChangeRequested(item->id(), value.toString());
+        item->setFlags(item->flags() & ~Qt::ItemIsEditable);
+    }
+
     return true;
 }
 
@@ -181,22 +202,13 @@ Qt::ItemFlags ChannelListModel::flags(QModelIndex const & index) const
 
     ChannelListItem * item = static_cast<ChannelListItem *>(index.internalPointer());
 
-    /* Root case */
     if (item == m_root)
         return QAbstractItemModel::flags(index);
 
-    /* User case */
-    if (item->parent() != m_root)
-    {
-        Qt::ItemFlags flags = Qt::ItemIsDragEnabled | QAbstractItemModel::flags(index);
+    if (item->parent() != m_root && item->id() == ClientID)
+        item->setFlags(item->flags() | Qt::ItemIsEditable);
 
-        if (item->id() == ClientID)
-            flags |= Qt::ItemIsEditable;
-
-        return flags;
-    }
-    /* Channel case */
-    return Qt::ItemIsDropEnabled | QAbstractItemModel::flags(index);
+    return item->flags() | QAbstractItemModel::flags(index);
 }
 
 Qt::DropActions ChannelListModel::supportedDropActions() const
@@ -318,8 +330,6 @@ int ChannelListModel::rowCount(QModelIndex const & parent) const
     {
         ChannelListItem * item;
         item = static_cast<ChannelListItem *>(parent.internalPointer());
-        if (item == nullptr)
-            qDebug() << "tchoiiiin";
         count = item->itemCount();
     }
     else

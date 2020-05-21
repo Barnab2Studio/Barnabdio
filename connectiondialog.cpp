@@ -13,22 +13,22 @@ ConnectionDialog::ConnectionDialog(QWidget * parent) :
     ui->setupUi(connectionDialog);
 
     connect(ui->ConnectButton, SIGNAL(pressed()),
-            this,              SLOT(onConnectButton_pressed()));
+            this,              SLOT(on_ConnectButton_pressed()));
 
     connect(ui->CancelButton,  SIGNAL(pressed()),
-            this,              SLOT(onCancelButton_pressed()));
+            this,              SLOT(on_CancelButton_pressed()));
 
     connect(ui->ServerInput,   SIGNAL(returnPressed()),
-            this,              SLOT(onConnectButton_pressed()));
+            this,              SLOT(on_ConnectButton_pressed()));
 
     connect(ui->PortInput,     SIGNAL(returnPressed()),
-            this,              SLOT(onConnectButton_pressed()));
+            this,              SLOT(on_ConnectButton_pressed()));
 
     connect(ui->PasswordInput, SIGNAL(returnPressed()),
-            this,              SLOT(onConnectButton_pressed()));
+            this,              SLOT(on_ConnectButton_pressed()));
 
     connect(ui->NameInput,     SIGNAL(returnPressed()),
-            this,              SLOT(onConnectButton_pressed()));
+            this,              SLOT(on_ConnectButton_pressed()));
 
     this->setWindowTitle("Connection");
     this->setContent(connectionDialog);
@@ -43,7 +43,7 @@ ConnectionDialog::~ConnectionDialog()
     delete ui;
 }
 
-void ConnectionDialog::onConnectButton_pressed()
+void ConnectionDialog::on_ConnectButton_pressed()
 {
     if (isHidden()) // dirty fix for a bug where this slot would be called twice
         return;
@@ -52,14 +52,14 @@ void ConnectionDialog::onConnectButton_pressed()
     hide();
 }
 
-void ConnectionDialog::onCancelButton_pressed()
+void ConnectionDialog::on_CancelButton_pressed()
 {
     hide();
 }
 
 void ConnectionDialog::show()
 {
-    ui->ServerInput->setFocus();
+    ui->NameInput->setFocus();
     move(parentWidget()->rect().center() - this->rect().center());
     FramelessWindow::show();
 }

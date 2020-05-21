@@ -6,6 +6,7 @@
 Channel::Channel(int id, QString const & name, ChannelListItem * parent)
     : ChannelListItem(id, name, parent)
 {
+    m_flags = Qt::ItemIsDropEnabled;
 }
 
 Channel::~Channel()

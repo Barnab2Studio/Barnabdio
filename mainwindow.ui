@@ -33,6 +33,42 @@
          <height>0</height>
         </size>
        </property>
+       <property name="lineWidth">
+        <number>0</number>
+       </property>
+       <property name="dragEnabled">
+        <bool>true</bool>
+       </property>
+       <property name="dragDropOverwriteMode">
+        <bool>true</bool>
+       </property>
+       <property name="dragDropMode">
+        <enum>QAbstractItemView::InternalMove</enum>
+       </property>
+       <property name="alternatingRowColors">
+        <bool>false</bool>
+       </property>
+       <property name="rootIsDecorated">
+        <bool>false</bool>
+       </property>
+       <property name="uniformRowHeights">
+        <bool>true</bool>
+       </property>
+       <property name="itemsExpandable">
+        <bool>false</bool>
+       </property>
+       <property name="expandsOnDoubleClick">
+        <bool>false</bool>
+       </property>
+       <attribute name="headerVisible">
+        <bool>false</bool>
+       </attribute>
+       <attribute name="headerMinimumSectionSize">
+        <number>0</number>
+       </attribute>
+       <attribute name="headerDefaultSectionSize">
+        <number>0</number>
+       </attribute>
       </widget>
       <widget class="QSplitter" name="RightUpDownLayout">
        <property name="orientation">
@@ -237,7 +273,6 @@
    <addaction name="actionSpeakers"/>
    <addaction name="actionCapture"/>
    <addaction name="actionSettings"/>
-   <addaction name="actionCreateChannel"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionSettings">
@@ -282,7 +317,7 @@
      <normaloff>:/icons/add.png</normaloff>:/icons/add.png</iconset>
    </property>
    <property name="text">
-    <string>CreateChannel</string>
+    <string>Create new channel</string>
    </property>
    <property name="toolTip">
     <string>Create a channel</string>
@@ -306,13 +341,16 @@
     <string>Pokoss</string>
    </property>
   </action>
-  <action name="actionEditChannel">
+  <action name="actionRenameChannel">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/icons/edit.png</normaloff>:/icons/edit.png</iconset>
+     <normaloff>:/icons/change_nickname.png</normaloff>:/icons/change_nickname.png</iconset>
    </property>
    <property name="text">
-    <string>Edit channel</string>
+    <string>Rename channel</string>
+   </property>
+   <property name="toolTip">
+    <string>Rename channel</string>
    </property>
   </action>
   <action name="actionOpenPrivateChat">

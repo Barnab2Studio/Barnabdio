@@ -31,6 +31,7 @@ public:
 public slots:
     Channel * addChannel(int id, QString const & name);
     void removeChannel(int id);
+    void renameChannel(int id, QString const & name);
     Channel * getChannelFromId(int id) const;
 
     void addUser(int userId, QString const & userName, int channelId);
@@ -44,7 +45,8 @@ public slots:
 
 signals:
     void channelChangeRequested(int channelId, int userId);
-    void userNameChangeRequested(int userId, QString const & name);
+    void userNameChangeRequested(int id, QString const & name);
+    void channelNameChangeRequested(int id, QString const & name);
 
 private:
     Channel * m_root;
