@@ -16,9 +16,10 @@ public:
 
 public slots:
     void setChannel(Channel * channel);
+    void clear();
 
 private slots:
-    void rename(User * user);
+    void rename();
     void add(User * user);
     void remove(int id);
 
@@ -30,7 +31,6 @@ private:
     std::map<int, VolumeLayout *> m_volumeLayouts;
 
     void update();
-    void clear();
 };
 
 #endif // VOLUMELISTLAYOUT_H

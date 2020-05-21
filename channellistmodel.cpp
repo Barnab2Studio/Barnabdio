@@ -3,7 +3,9 @@
 #include "channellistitem.h"
 #include "channel.h"
 #include "user.h"
+#include "globals.h"
 
+#include <QFont>
 #include <QtDebug>
 #include <QMimeData>
 
@@ -11,13 +13,13 @@ ChannelListModel::ChannelListModel(QObject * parent)
     : QAbstractItemModel(parent)
 {
     m_root = new Channel(0, "Header");
-
 }
 
 ChannelListModel::~ChannelListModel()
 {
     delete m_root;
     qDeleteAll(m_channelList);
+    qDeleteAll(m_userList);
 }
 
 Channel * ChannelListModel::addChannel(int id, QString const & name)
@@ -26,15 +28,6 @@ Channel * ChannelListModel::addChannel(int id, QString const & name)
     channel->setIcon(QIcon(":/icons/channel.png"));
     m_channelList.append(channel);
     emit layoutChanged();
-
-    connect(channel, SIGNAL(userRenamed(User *)), // more signals to be done here
-            this,    SIGNAL(layoutChanged()));
-
-    connect(channel, SIGNAL(userAdded(User *)),
-            this,    SIGNAL(layoutChanged()));
-
-    connect(channel, SIGNAL(userRemoved(int)),
-            this,    SIGNAL(layoutChanged()));
 
     return channel;
 }
@@ -57,6 +50,17 @@ void ChannelListModel::removeChannel(int id)
     }
 }
 
+void ChannelListModel::renameChannel(int id, QString const & name)
+{
+    Channel * channel = getChannelFromId(id);
+
+    if (channel == nullptr)
+        return;
+
+    channel->rename(name);
+    emit layoutChanged();
+}
+
 Channel * ChannelListModel::getChannelFromId(int id) const
 {
     auto it = std::find_if(m_channelList.begin(), m_channelList.end(),
@@ -67,6 +71,72 @@ Channel * ChannelListModel::getChannelFromId(int id) const
     return nullptr;
 }
 
+void ChannelListModel::addUser(int userId, QString const & userName, int channelId)
+{
+    Channel * channel = getChannelFromId(channelId);
+
+    m_userList[userId] = new User(userId, userName);
+    m_userList[userId]->setChannel(channel);
+    emit layoutChanged();
+}
+
+void ChannelListModel::removeUser(int id)
+{
+    if (m_userList.count(id) == 0)
+        return;
+
+    m_userList[id]->setChannel(nullptr);
+    delete m_userList[id];
+    emit layoutChanged();
+}
+
+void ChannelListModel::renameUser(int id, QString const & name)
+{
+    if (m_userList.count(id) == 0)
+        return;
+
+    m_userList[id]->rename(name);
+    emit layoutChanged();
+}
+
+User * ChannelListModel::getUserFromId(int id) const
+{
+    if (m_userList.count(id) == 0)
+        return nullptr;
+    return m_userList[id];
+}
+
+void ChannelListModel::moveUser(int idChannel, int idUser)
+{
+    User * user = getUserFromId(idUser);
+    Channel * channel = getChannelFromId(idChannel);
+
+    if (!user || !channel)
+        return;
+
+    user->setChannel(channel);
+    emit layoutChanged();
+}
+
+void ChannelListModel::clear()
+{
+    beginResetModel();
+    auto itChannel = m_channelList.begin();
+    while (itChannel != m_channelList.end())
+    {
+        delete *itChannel;
+        itChannel = m_channelList.erase(itChannel++);
+    }
+
+    auto itUser = m_channelList.begin();
+    while (itUser != m_channelList.end())
+    {
+        delete *itUser;
+        itUser = m_channelList.erase(itUser++);
+    }
+    endResetModel();
+}
+
 QVariant ChannelListModel::data(QModelIndex const & index, int role) const
 {
     if (!index.isValid())
@@ -74,13 +144,55 @@ QVariant ChannelListModel::data(QModelIndex const & index, int role) const
 
     ChannelListItem * item = static_cast<ChannelListItem *>(index.internalPointer());
 
-    if ( role == Qt::DecorationRole )
+    if (role == Qt::UserRole)
+    {
+        if (item->parent() == m_root)
+            return item->id();
+        return -1;
+    }
+
+    if (role == Qt::FontRole)
+    {
+        QFont font;
+
+        if (item->parent() != m_root && item->id() == ClientID)
+            font.setBold(true);
+
+        return font;
+    }
+
+    if (role == Qt::EditRole)
+        return item->name();
+
+    if (role == Qt::DecorationRole)
         return item->icon();
 
-    if (role != Qt::DisplayRole)
-        return QVariant();
+    if (role == Qt::DisplayRole)
+        return item->name();
 
-    return item->name();
+    return QVariant();
+}
+
+bool ChannelListModel::setData(const QModelIndex & index, const QVariant & value, int role)
+{
+    if (!index.isValid() || value == QVariant())
+        return false;
+
+    ChannelListItem * item = static_cast<ChannelListItem *>(index.internalPointer());
+
+    if (item->parent() != m_root)
+    {
+        if (value != item->name())
+            emit userNameChangeRequested(item->id(), value.toString());
+    }
+    else
+    {
+        if (value != item->name())
+            emit channelNameChangeRequested(item->id(), value.toString());
+        item->setFlags(item->flags() & ~Qt::ItemIsEditable);
+    }
+
+    return true;
 }
 
 Qt::ItemFlags ChannelListModel::flags(QModelIndex const & index) const
@@ -89,13 +201,14 @@ Qt::ItemFlags ChannelListModel::flags(QModelIndex const & index) const
         return Qt::NoItemFlags;
 
     ChannelListItem * item = static_cast<ChannelListItem *>(index.internalPointer());
+
     if (item == m_root)
         return QAbstractItemModel::flags(index);
 
-    if (item->parent() != m_root)
-        return Qt::ItemIsDragEnabled | QAbstractItemModel::flags(index);
+    if (item->parent() != m_root && item->id() == ClientID)
+        item->setFlags(item->flags() | Qt::ItemIsEditable);
 
-    return Qt::ItemIsDropEnabled | QAbstractItemModel::flags(index);
+    return item->flags() | QAbstractItemModel::flags(index);
 }
 
 Qt::DropActions ChannelListModel::supportedDropActions() const
@@ -153,7 +266,8 @@ bool ChannelListModel::dropMimeData(const QMimeData * data, Qt::DropAction actio
     Channel * parentSource = getChannelFromId(id & 0xffff);
     User * source = parentSource->getUserFromId(id >> 16);
 
-    source->setChannel(item);
+    if (item != source->parent())
+        emit channelChangeRequested(item->id(), source->id());
 
     return true;
 }
@@ -230,7 +344,7 @@ int ChannelListModel::columnCount(QModelIndex const & parent) const
     return 1;
 }
 
-void ChannelListModel::displayIndexes()
+void ChannelListModel::displayIndexes() const
 {
     for (int i = 0 ; i < rowCount() ; ++i)
     {

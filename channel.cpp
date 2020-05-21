@@ -1,22 +1,23 @@
 #include "channel.h"
 
+#include "globals.h"
 #include "user.h"
 
 Channel::Channel(int id, QString const & name, ChannelListItem * parent)
     : ChannelListItem(id, name, parent)
 {
+    m_flags = Qt::ItemIsDropEnabled;
 }
 
 Channel::~Channel()
 {
-    qDeleteAll(m_users);
 }
 
 void Channel::addUser(User * user)
 {
     user->setIcon(QIcon(":/icons/player_commander_off.png")); // a bouger
 
-    if (user->id() == 0)
+    if (user->id() == ClientID)
         m_users.push_front(user);
     else
         m_users.append(user);

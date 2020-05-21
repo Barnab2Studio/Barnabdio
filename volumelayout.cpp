@@ -9,7 +9,6 @@
 using namespace std;
 VolumeLayout::VolumeLayout(QString const & name, int volume, QWidget * parent)
     : QVBoxLayout(parent)
-    , m_name(name)
     , m_userVolumeLabel(new QLabel())
     , m_volumeSlider(new QSlider())
     , m_volumeValueLabel(new QLabel())
@@ -35,14 +34,9 @@ VolumeLayout::~VolumeLayout()
     delete m_scrollArea;
 }
 
-QString const & VolumeLayout::name() const
-{
-    return m_name;
-}
-
 void VolumeLayout::setName(QString const & name)
 {
-    m_name = name;
+    m_userVolumeLabel->setText(name);
 }
 
 void VolumeLayout::initValueLabel(int volume)
@@ -94,11 +88,6 @@ void VolumeLayout::initLayout()
     this->setStretch(2,1);
 
     this->setSpacing(0);
-}
-
-void VolumeLayout::onNameChanged(QString const & name)
-{
-    m_userVolumeLabel->setText(name);
 }
 
 void VolumeLayout::onVolumeChanged(int volume)
