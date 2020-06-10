@@ -27,9 +27,11 @@ SOURCES += \
 #    UserVolumePanel.cpp \
 #    VolumeSlideBar.cpp \
     channel.cpp \
+    channelcreationdialog.cpp \
     channellistitem.cpp \
     channellistmodel.cpp \
     connectiondialog.cpp \
+    globals.cpp \
     main.cpp \
     framelesswindow/framelesswindow.cpp \
     framelesswindow/windowdragger.cpp \
@@ -50,9 +52,11 @@ HEADERS += \
 #    UserVolumePanel.h \
 #    VolumeSlideBar.h \
     channel.h \
+    channelcreationdialog.h \
     channellistitem.h \
     channellistmodel.h \
     connectiondialog.h \
+    globals.h \
     tcpclient.h \
     volumelayout.h \
     volumelistlayout.h
@@ -61,6 +65,7 @@ HEADERS     += framelesswindow/framelesswindow.h \
                DarkStyle.h
 
 FORMS += \
+    channelcreationdialog.ui \
     connectiondialog.ui \
     framelesswindow/framelesswindow.ui \
     mainwindow.ui

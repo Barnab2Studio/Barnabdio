@@ -3,11 +3,13 @@
 
 #include <QIntValidator>
 
+#include <QDebug>
+
 ConnectionDialog::ConnectionDialog(QWidget * parent) :
     FramelessWindow(parent),
     ui(new Ui::ConnectionDialog)
 {
-    QDialog * connectionDialog = new QDialog(this);
+    QDialog * connectionDialog = new QDialog();
     ui->setupUi(connectionDialog);
 
     connect(ui->ConnectButton, SIGNAL(pressed()),
@@ -43,6 +45,9 @@ ConnectionDialog::~ConnectionDialog()
 
 void ConnectionDialog::on_ConnectButton_pressed()
 {
+    if (isHidden()) // dirty fix for a bug where this slot would be called twice
+        return;
+
     emit connectionRequested(ui->ServerInput->text(), ui->PortInput->text(), ui->PasswordInput->text(), ui->NameInput->text());
     hide();
 }
@@ -54,7 +59,7 @@ void ConnectionDialog::on_CancelButton_pressed()
 
 void ConnectionDialog::show()
 {
-    ui->ServerInput->setFocus();
+    ui->NameInput->setFocus();
     move(parentWidget()->rect().center() - this->rect().center());
     FramelessWindow::show();
 }

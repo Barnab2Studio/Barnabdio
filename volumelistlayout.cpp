@@ -1,5 +1,7 @@
 #include "volumelistlayout.h"
 
+#include "globals.h"
+
 #include "volumelayout.h"
 #include "channel.h"
 #include "user.h"
@@ -20,16 +22,13 @@ VolumeListLayout::~VolumeListLayout()
 
 void VolumeListLayout::setChannel(Channel * channel)
 {
-    if (channel == nullptr)
-        return;
-
     if (m_channel != nullptr)
         disconnect(m_channel, nullptr, this, nullptr);
 
     m_channel = channel;
 
-    connect(channel, SIGNAL(userRenamed(User *)),
-            this,    SLOT(rename(User *)));
+    if (channel == nullptr)
+        return;
 
     connect(channel, SIGNAL(userAdded(User *)),
             this,    SLOT(add(User *)));
@@ -40,10 +39,15 @@ void VolumeListLayout::setChannel(Channel * channel)
     update();
 }
 
-void VolumeListLayout::rename(User * user)
+void VolumeListLayout::rename()
 {
+    User * user = static_cast<User *>(QObject::sender());
+
     if (m_volumeLayouts.count(user->id()) == 0)
+    {
+        disconnect(user, nullptr, this, nullptr);
         return;
+    }
 
     m_volumeLayouts[user->id()]->setName(user->name());
 }
@@ -53,7 +57,7 @@ void VolumeListLayout::add(User * user)
     if (m_volumeLayouts.count(user->id()) != 0)
         return;
 
-    if (user->id() == 0)
+    if (user->id() == ClientID)
         return;
 
     VolumeLayout * volumeLayout = new VolumeLayout(user->name(), user->volume());
@@ -61,6 +65,7 @@ void VolumeListLayout::add(User * user)
     m_volumeLayouts[user->id()] = volumeLayout;
 
     connect(volumeLayout, SIGNAL(volumeChanged(int)), user, SLOT(setVolume(int)));
+    connect(user, SIGNAL(renamed()), this, SLOT(rename()));
 }
 
 void VolumeListLayout::remove(int id)
@@ -81,6 +86,9 @@ void VolumeListLayout::update()
     for (int i = 0 ; i < m_channel->itemCount() ; ++i)
     {
         User * user = qobject_cast<User *>(m_channel->itemAt(i));
+
+        connect(user, SIGNAL(renamed()), this, SLOT(rename()));
+
         add(user);
     }
 }

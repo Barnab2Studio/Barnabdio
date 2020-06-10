@@ -3,6 +3,7 @@
 
 #include <QAbstractItemModel>
 
+class User;
 class Channel;
 class ChannelListItem;
 class ChannelListModel : public QAbstractItemModel
@@ -13,14 +14,8 @@ public:
     explicit ChannelListModel(QObject * parent = nullptr);
     virtual ~ChannelListModel();
 
-    Channel * addChannel(int id, QString const & name);
-    void removeChannel(int id);
-
-    void displayIndexes();
-
-    Channel * getChannelFromId(int id) const;
-
     QVariant data(const QModelIndex &index, int role) const override;
+    bool setData(const QModelIndex & index, const QVariant & value, int role = Qt::EditRole) override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
     Qt::DropActions supportedDropActions() const override;
     QStringList mimeTypes() const override;
@@ -33,8 +28,29 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
+public slots:
+    Channel * addChannel(int id, QString const & name);
+    void removeChannel(int id);
+    void renameChannel(int id, QString const & name);
+    Channel * getChannelFromId(int id) const;
+
+    void addUser(int userId, QString const & userName, int channelId);
+    void removeUser(int id);
+    void renameUser(int id, QString const & name);
+    User * getUserFromId(int id) const;
+    void moveUser(int idChannel, int idUser);
+
+    void clear();
+    void displayIndexes() const;
+
+signals:
+    void channelChangeRequested(int channelId, int userId);
+    void userNameChangeRequested(int id, QString const & name);
+    void channelNameChangeRequested(int id, QString const & name);
+
 private:
     Channel * m_root;
     QVector<Channel *> m_channelList;
+    QMap<int, User *> m_userList;
 };
 #endif // CHANNELLIST_H

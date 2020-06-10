@@ -8,18 +8,17 @@ User::User(int id, QString const & name, ChannelListItem * parent)
     : ChannelListItem(id, name, parent)
     , m_volume(100)
 {
-    if (id == 3)
-        m_volume = 0;
+    m_flags = Qt::ItemIsDragEnabled;
 }
 
 User::~User()
 {
 }
 
-void User::setChannel(Channel * channel)
+bool User::setChannel(Channel * channel)
 {
     if (channel == m_parent)
-        return;
+        return false;
 
     Channel * currentChannel = qobject_cast<Channel *>(m_parent);
 
@@ -32,6 +31,7 @@ void User::setChannel(Channel * channel)
         channel->addUser(this);
 
     emit channelChanged(channel);
+    return true;
 }
 
 int User::volume() const
