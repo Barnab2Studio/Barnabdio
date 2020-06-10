@@ -23,6 +23,9 @@
 #include <QtMultimedia/QAudioInput>
 #include <QtMultimedia/QAudioOutput>
 #include "recordingthread.h"
+#include "playingSoundThread.h"
+
+#include <QtCore/qiodevice.h>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -91,7 +94,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 //    const QAudioDeviceInfo inputDeviceInfo = QAudioDeviceInfo::defaultInputDevice();
-    const QAudioDeviceInfo outputDeviceInfo = QAudioDeviceInfo::defaultOutputDevice();
+//    const QAudioDeviceInfo outputDeviceInfo = QAudioDeviceInfo::defaultOutputDevice();
 
 //    QAudioFormat formatAudio;
 //    formatAudio.setSampleRate(8000);
@@ -106,15 +109,24 @@ MainWindow::MainWindow(QWidget *parent)
 //    QAudioOutput* audioOutput = new QAudioOutput(outputDeviceInfo,formatAudio,this);
 //    m_audioInput->start(audioOutput->start());
 
+    m_udpSocket = new QUdpSocket(this);
+    m_udpSocket->connectToHost("barnab2.club",5575,QIODevice::ReadWrite);
 
-    const int BufferSize = 32000;
-    char buffer[BufferSize];
+    RecordingThread* recordingThread = new RecordingThread(this,m_udpSocket);
+    PlayingSoundThread* playingThread = new PlayingSoundThread(this,m_udpSocket);
+//    m_audioInput->start(m_udpSocket);
 
-    QWaitCondition bufferNotEmpty;
-    QWaitCondition bufferNotFull;
-    QMutex mutex;
-    int numUsedBytes = 0;
-    new RecordingThread(this,buffer,&bufferNotEmpty,&bufferNotFull,&mutex,&numUsedBytes);
+//    const int BufferSize = 32000;
+//    char buffer[BufferSize];
+
+//    QWaitCondition bufferNotEmpty;
+//    QWaitCondition bufferNotFull;
+//    QMutex mutex;
+//    int numUsedBytes = 0;
+//    RecordingThread* recordingThread = new RecordingThread(this,buffer,&bufferNotEmpty,&bufferNotFull,&mutex,&numUsedBytes);
+//    PlayingSoundThread* playingSoundThread = new PlayingSoundThread(this,buffer,&bufferNotEmpty,&bufferNotFull,&mutex,&numUsedBytes);
+//    QIODevice* input = recordingThread->getInputDevice()->start();
+
 
 }
 

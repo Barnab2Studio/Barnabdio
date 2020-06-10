@@ -16,6 +16,8 @@ class ChannelListModel;
 class VolumeListLayout;
 class QAudioInput;
 
+class QUdpSocket;
+
 class ChannelCreationDialog;
 
 class MainWindow : public QMainWindow
@@ -60,6 +62,7 @@ private:
     TCPClient * m_tcpclient;
 
 
+    QUdpSocket *m_udpSocket = nullptr;
     QAudioInput *m_audioInput = nullptr;
 
     User * m_client;

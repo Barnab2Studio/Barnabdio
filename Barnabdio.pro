@@ -36,6 +36,8 @@ SOURCES += \
     framelesswindow/framelesswindow.cpp \
     framelesswindow/windowdragger.cpp \
     DarkStyle.cpp \
+    playingSoundThread.cpp \
+    recordingthread.cpp \
     tcpclient.cpp \
     volumelayout.cpp \
     volumelistlayout.cpp
@@ -57,6 +59,8 @@ HEADERS += \
     channellistmodel.h \
     connectiondialog.h \
     globals.h \
+    playingSoundThread.h \
+    recordingthread.h \
     tcpclient.h \
     volumelayout.h \
     volumelistlayout.h
